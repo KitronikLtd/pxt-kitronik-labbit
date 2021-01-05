@@ -262,81 +262,100 @@ namespace kitronik_labbit {
      */
 
     /**
-     * Get the color wheel field editor
+     * Choose if the Red LED on the traffic light is on or off
      * @param color color, eg: #ff0000
      */
-     //% subcategory="Traffic Light"
-    //% blockId=kitronik_labbit_traffic_light_individual_colorNumberPicker2 block="%value"
-    //% blockHidden=false
+    //% subcategory="Traffic Light"
+    //% blockId=redColorNumberPicker block="%value"
+    //% blockHidden=true
+    //% weight=10 blockGap=8
     //% shim=TD_ID colorSecondary="#ffffff"
     //% value.fieldEditor="colornumber" value.fieldOptions.decompileLiterals=true
     //% value.defl='#ff0000'
-    //% value.fieldOptions.colours='["#ff0000","#ffff00","#00ff00"]'
+    //% value.fieldOptions.colours='["#ff0000","#900606"]'
     //% value.fieldOptions.columns=1 value.fieldOptions.className='rgbColorPicker'
-    //% blockId=kitronik_labbit_traffic_light_individual
-    //% block="turn traffic light %value| %selectedColour| light %lightOnOff"
-    //% weight=100 blockGap=8
-    export function trafficLightShow(selectedLight: TrafficLight, selectedColour: LightColour, lightOnOff: LightShow): void {
+    export function __redColorNumberPicker(value: number) {
+        return value;
+    }
+
+    /**
+     * Choose if the Yellow LED on the traffic light is on or off
+     * @param color color, eg: #ff0000
+     */
+    //% subcategory="Traffic Light"
+    //% blockId=yellowColorNumberPicker block="%value"
+    //% blockHidden=true
+    //% weight=10 blockGap=8
+    //% shim=TD_ID colorSecondary="#ffffff"
+    //% value.fieldEditor="colornumber" value.fieldOptions.decompileLiterals=true
+    //% value.defl='#ffff00'
+    //% value.fieldOptions.colours='["#ffff00","#878604"]'
+    //% value.fieldOptions.columns=1 value.fieldOptions.className='rgbColorPicker'
+    export function __yellowColorNumberPicker(value: number) {
+        return value;
+    }
+
+    /**
+     * Choose if the Green LED on the traffic light is on or off
+     * @param color color, eg: #ff0000
+     */
+    //% subcategory="Traffic Light"
+    //% blockId=greenColorNumberPicker block="%value"
+    //% blockHidden=true
+    //% weight=10 blockGap=8
+    //% shim=TD_ID colorSecondary="#ffffff"
+    //% value.fieldEditor="colornumber" value.fieldOptions.decompileLiterals=true
+    //% value.defl='#0000ff'
+    //% value.fieldOptions.colours='["#00ff00","#0f4604"]'
+    //% value.fieldOptions.columns=1 value.fieldOptions.className='rgbColorPicker'
+    export function __greenColorNumberPicker(value: number) {
+        return value;
+    }
+
+
+    //% block="%prettyLights|set ZIP LED %zipLedNum|to %rgb=colorNumberPicker2" 
+
+
+    /**
+     * Get the color wheel field editor
+     * @param color color, eg: #ff0000
+     */
+    //% subcategory="Traffic Light"
+    //% blockId=kitronik_labbit_traffic_light_individual 
+    //% block="traffic light %TrafficLight| %red=redColorNumberPicker| %yellow=yellowColorNumberPicker| %green=greenColorNumberPicker"
+    //% weight=90 blockGap=8
+    export function trafficLightShow(selectedLight: TrafficLight, red: number, yellow: number, green: number): void {
         let buf = pins.createBuffer(2)
         let value = 0
         let bitMask = 0
         
         readOutputPort()
+        if (red == 0xff0000){
+            value = output0Value | trafficLight1_Rmask
+        }
+        else if (red == 0xff0000) {
+            value = output0Value ^ trafficLight1_Rmask
+        }
+
+        if (yellow == 0xffff00){
+            value = output0Value | trafficLight1_Rmask
+        }
+        else if (yellow == 0xffff00) {
+            value = output0Value ^ trafficLight1_Rmask
+        }
+
+        if (green == 0x0000ff){
+            value = output0Value | trafficLight1_Rmask
+        }
+        else if (green == 0x0000ff) {
+            value = output0Value ^ trafficLight1_Rmask
+        }
+
         if (selectedLight == TrafficLight.one){
-            switch (selectedColour) {
-                case LightColour.red:
-                    if (lightOnOff == LightShow.On){
-                        value = output0Value | trafficLight1_Rmask
-                    }
-                    else if (lightOnOff == LightShow.Off) {
-                        value = output0Value ^ trafficLight1_Rmask
-                    }
-                    break
-                case LightColour.yellow:
-                    if (lightOnOff == LightShow.On){
-                        value = output0Value | trafficLight1_Ymask
-                    }
-                    else if (lightOnOff == LightShow.Off) {
-                        value = output0Value ^ trafficLight1_Ymask
-                    }
-                    break
-                case LightColour.green:
-                    if (lightOnOff == LightShow.On){
-                        value = output0Value | trafficLight1_Gmask
-                    }
-                    else if (lightOnOff == LightShow.Off) {
-                        value = output0Value ^ trafficLight1_Gmask
-                    }
-                    break
-            }
+
         }
         else if (selectedLight == TrafficLight.two){
-            switch (selectedColour) {
-                case LightColour.red:
-                    if (lightOnOff == LightShow.On){
-                        value = output0Value | trafficLight2_Rmask
-                    }
-                    else if (lightOnOff == LightShow.Off) {
-                        value = output0Value ^ trafficLight2_Rmask
-                    }
-                    break
-                case LightColour.yellow:
-                    if (lightOnOff == LightShow.On){
-                        value = output0Value | trafficLight2_Ymask
-                    }
-                    else if (lightOnOff == LightShow.Off) {
-                        value = output0Value ^ trafficLight2_Ymask
-                    }
-                    break
-                case LightColour.green:
-                    if (lightOnOff == LightShow.On){
-                        value = output0Value | trafficLight2_Gmask
-                    }
-                    else if (lightOnOff == LightShow.Off) {
-                        value = output0Value ^ trafficLight2_Gmask
-                    }
-                    break
-            }
+
         }
         buf[0] = OUTPUT_0_REG
         buf[1] = value
