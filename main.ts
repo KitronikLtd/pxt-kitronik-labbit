@@ -1,7 +1,7 @@
 /**
  * Blocks for driving the Kitronik LAB bit Board
  */
-//% weight=100 color=#00A654 icon="\uf0c6" block="LAB bit"
+//% weight=100 color=#00A654 icon="\uf0c3" block="LAB bit"
 //% groups='["Inputs", "Motor", "ZIP LEDs"]'
 namespace kitronik_labbit {
 	/**
