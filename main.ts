@@ -260,9 +260,21 @@ namespace kitronik_labbit {
 	 * @param selectedLight  is the selection of which traffic light will be controlled
 	 * @param lightStatus to display the traffic light control
      */
-    //% subcategory="Traffic Light"
+
+    /**
+     * Get the color wheel field editor
+     * @param color color, eg: #ff0000
+     */
+     //% subcategory="Traffic Light"
+    //% blockId=kitronik_labbit_traffic_light_individual_colorNumberPicker2 block="%value"
+    //% blockHidden=false
+    //% shim=TD_ID colorSecondary="#ffffff"
+    //% value.fieldEditor="colornumber" value.fieldOptions.decompileLiterals=true
+    //% value.defl='#ff0000'
+    //% value.fieldOptions.colours='["#ff0000","#ffff00","#00ff00"]'
+    //% value.fieldOptions.columns=1 value.fieldOptions.className='rgbColorPicker'
     //% blockId=kitronik_labbit_traffic_light_individual
-    //% block="turn traffic light %selectedLight| %selectedColour| light %lightOnOff"
+    //% block="turn traffic light %value| %selectedColour| light %lightOnOff"
     //% weight=100 blockGap=8
     export function trafficLightShow(selectedLight: TrafficLight, selectedColour: LightColour, lightOnOff: LightShow): void {
         let buf = pins.createBuffer(2)
@@ -529,7 +541,7 @@ namespace kitronik_labbit {
         /**
          * Shows a rainbow pattern on all ZIP LEDs.
          */
-        //% group="ZIP LEDs"
+        //% subcategory="ZIP LEDs"
         //% blockId="kitronik_labbit_zip_rainbow" block="%prettyLights|show rainbow" 
         //% weight=94 blockGap=8
         //% parts="neopixel"
