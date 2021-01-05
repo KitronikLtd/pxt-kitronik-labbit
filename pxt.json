@@ -1,5 +1,5 @@
 {
-    "name": "pxt-kitronik-labbitt",
+    "name": "pxt-kitronik-labbit",
     "version": "0.0.1",
     "description": "Blocks to simplify using Kitronik LAB:bit board in PXT",
     "license": "MIT",
