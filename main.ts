@@ -35,20 +35,10 @@ namespace kitronik_labbit {
      * Different directions for motors to turn
      */
     export enum MotorDirection {
-        //% block="forward"
-        Forward,
-        //% block="reverse"
-        Reverse
-    }
-
-    /**
-     * Motor outputs available on board
-     */
-    export enum Motors {
-        //% block="motor 1"
-        Motor1,
-        //% block="motor 2"
-        Motor2
+        //% block="left"
+        Left,
+        //% block="right"
+        Right
     }
 
     /**
@@ -138,12 +128,12 @@ namespace kitronik_labbit {
     let IO_CONFIG_1 = 0x07
     let ioInitialised = false
     
-    let trafficLight1_Rmask = 0x01
-    let trafficLight1_Ymask = 0x02
-    let trafficLight1_Gmask = 0x04
-    let trafficLight2_Rmask = 0x08
-    let trafficLight2_Ymask = 0x10
-    let trafficLight2_Gmask = 0x20
+    let TRAFFIC_LIGHT_1_R_MASK = 0x01
+    let TRAFFIC_LIGHT_1_Y_MASK = 0x02
+    let TRAFFIC_LIGHT_1_G_MASK = 0x04
+    let TRAFFIC_LIGHT_2_R_MASK = 0x08
+    let TRAFFIC_LIGHT_2_Y_MASK = 0x10
+    let TRAFFIC_LIGHT_2_G_MASK = 0x20
     
     let DICE_SYMBOL_1 = 0x08
     let DICE_SYMBOL_2 = 0x14
@@ -218,16 +208,16 @@ namespace kitronik_labbit {
         {
            switch (lightStage) {
                 case LightStatus.Stop:
-                    bitMask = trafficLight1_Rmask
+                    bitMask = TRAFFIC_LIGHT_1_R_MASK
                     break
                 case LightStatus.GetReady:
-                    bitMask = trafficLight1_Rmask + trafficLight1_Ymask
+                    bitMask = TRAFFIC_LIGHT_1_R_MASK + TRAFFIC_LIGHT_1_Y_MASK
                     break
                 case LightStatus.Go:
-                    bitMask = trafficLight1_Gmask
+                    bitMask = TRAFFIC_LIGHT_1_G_MASK
                     break
                 case LightStatus.ReadyToStop:
-                    bitMask = trafficLight1_Ymask
+                    bitMask = TRAFFIC_LIGHT_1_Y_MASK
                     break
             }
             value = (output0Value && 0xF0) + bitMask
@@ -236,16 +226,16 @@ namespace kitronik_labbit {
         {
            switch (lightStage) {
                 case LightStatus.Stop:
-                    bitMask = trafficLight2_Rmask
+                    bitMask = TRAFFIC_LIGHT_2_R_MASK
                     break
                 case LightStatus.GetReady:
-                    bitMask = trafficLight2_Rmask + trafficLight2_Ymask
+                    bitMask = TRAFFIC_LIGHT_2_R_MASK + TRAFFIC_LIGHT_2_Y_MASK
                     break
                 case LightStatus.Go:
-                    bitMask = trafficLight2_Gmask
+                    bitMask = TRAFFIC_LIGHT_2_G_MASK
                     break
                 case LightStatus.ReadyToStop:
-                    bitMask = trafficLight2_Ymask
+                    bitMask = TRAFFIC_LIGHT_2_Y_MASK
                     break
             }
             value = (output0Value && 0x0F) + bitMask
@@ -312,10 +302,6 @@ namespace kitronik_labbit {
         return value;
     }
 
-
-    //% block="%prettyLights|set ZIP LED %zipLedNum|to %rgb=colorNumberPicker2" 
-
-
     /**
      * Get the color wheel field editor
      * @param color color, eg: #ff0000
@@ -330,32 +316,58 @@ namespace kitronik_labbit {
         let bitMask = 0
         
         readOutputPort()
-        if (red == 0xff0000){
-            value = output0Value | trafficLight1_Rmask
-        }
-        else if (red == 0xff0000) {
-            value = output0Value ^ trafficLight1_Rmask
-        }
-
-        if (yellow == 0xffff00){
-            value = output0Value | trafficLight1_Rmask
-        }
-        else if (yellow == 0xffff00) {
-            value = output0Value ^ trafficLight1_Rmask
-        }
-
-        if (green == 0x0000ff){
-            value = output0Value | trafficLight1_Rmask
-        }
-        else if (green == 0x0000ff) {
-            value = output0Value ^ trafficLight1_Rmask
-        }
 
         if (selectedLight == TrafficLight.one){
-
+            //turn the red light on with ORing the required bit
+            if (red == 0xff0000){
+                value = output0Value | TRAFFIC_LIGHT_1_R_MASK
+            }
+            //turn the red light off with XOR the require bit
+            else if (red == 0x900606) {
+                value = output0Value ^ TRAFFIC_LIGHT_1_R_MASK
+            }
+            //turn the yellow light on with ORing the required bit
+            if (yellow == 0xffff00){
+                value = output0Value | TRAFFIC_LIGHT_1_Y_MASK
+            }
+            //turn the yellow light off with XOR the require bit
+            else if (yellow == 0x878604) {
+                value = output0Value ^ TRAFFIC_LIGHT_1_Y_MASK
+            }
+            //turn the green light on with ORing the required bit
+            if (green == 0x0000ff){
+                value = output0Value | TRAFFIC_LIGHT_1_G_MASK
+            }
+            //turn the green light off with XOR the require bit
+            else if (green == 0x0f4604) {
+                value = output0Value ^ TRAFFIC_LIGHT_1_G_MASK
+            }
         }
         else if (selectedLight == TrafficLight.two){
-
+            //turn the red light on with ORing the required bit
+            if (red == 0xff0000){
+                value = output0Value | TRAFFIC_LIGHT_2_R_MASK
+            }
+            //turn the red light off with XOR the require bit
+            else if (red == 0x900606) {
+                value = output0Value ^ TRAFFIC_LIGHT_2_R_MASK
+            }
+            //turn the yellow light on with ORing the required bit
+            if (yellow == 0xffff00){
+                value = output0Value | TRAFFIC_LIGHT_2_Y_MASK
+            }
+            //turn the yellow light off with XOR the require bit
+            else if (yellow == 0x878604) {
+                value = output0Value ^ TRAFFIC_LIGHT_2_Y_MASK
+            }
+            //turn the green light on with ORing the required bit
+            if (green == 0x0000ff){
+                value = output0Value | TRAFFIC_LIGHT_2_G_MASK
+            }
+            //turn the green light off with XOR the require bit
+            else if (green == 0x0f4604) {
+                value = output0Value ^ TRAFFIC_LIGHT_2_G_MASK
+            }
         }
         buf[0] = OUTPUT_0_REG
         buf[1] = value
@@ -523,11 +535,11 @@ namespace kitronik_labbit {
         let OutputVal = Math.clamp(0, 100, speed) * 10;
 
         switch (dir) {
-            case MotorDirection.Forward:
+            case MotorDirection.Left:
                 pins.analogWritePin(AnalogPin.P12, OutputVal);
                 pins.digitalWritePin(DigitalPin.P16, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
                 break
-            case MotorDirection.Reverse:
+            case MotorDirection.Right:
                 pins.analogWritePin(AnalogPin.P12, OutputVal);
                 pins.digitalWritePin(DigitalPin.P16, 0);
                 break
@@ -560,7 +572,7 @@ namespace kitronik_labbit {
         /**
          * Shows a rainbow pattern on all ZIP LEDs.
          */
-        //% subcategory="ZIP LEDs"
+        //% subcategory="ZIP LED"
         //% blockId="kitronik_labbit_zip_rainbow" block="%prettyLights|show rainbow" 
         //% weight=94 blockGap=8
         //% parts="neopixel"
