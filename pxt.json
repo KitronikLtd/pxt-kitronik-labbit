@@ -1,0 +1,15 @@
+{
+    "name": "pxt-kitronik-labbitt",
+    "version": "0.0.1",
+    "description": "Blocks to simplify using Kitronik LAB:bit board in PXT",
+    "license": "MIT",
+    "dependencies": {
+        "core": "*"
+    },
+    "files": [
+        "README.md",
+        "main.ts"
+    ],
+    "testFiles": [],
+    "public": true
+}
