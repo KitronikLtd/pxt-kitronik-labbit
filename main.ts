@@ -121,7 +121,7 @@ namespace kitronik_labbit {
         Inches
     }
 
-    let CHIP_ADDR = 0x42 //address in binary 0100A2 A1 A0(RW) = 0100010
+    let CHIP_ADDR = 0x42 //address in binary 0100 A2 A1 A0(RW) = 0100010
     let OUTPUT_0_REG = 0x02
     let OUTPUT_1_REG = 0x03
     let IO_CONFIG_0 = 0x06
@@ -186,6 +186,62 @@ namespace kitronik_labbit {
         readBuf = pins.i2cReadBuffer(CHIP_ADDR, 2, false)
         output0Value = readBuf[0]
         output1Value = readBuf[1]
+    }
+
+    /**
+     * Set the distance measurement units to cm or inches (cm is default)
+     * @param unit desired conversion unit
+     */
+    //% subcategory="Inputs"
+    //% group="Analog"
+    //% blockId=kitronik_labbit_analog_input
+    //% block="read analog input value"
+    //% weight=100 blockGap=8
+    export function readAnalogInput(): number {
+        return pins.analogReadPin(AnalogPin.P2)
+    }
+    
+    /**
+     * Set the distance measurement units to cm or inches (cm is default)
+     * @param unit desired conversion unit
+     */
+    //% subcategory="Inputs"
+    //% group="Ultrasonic"
+    //% blockId=kitronik_labbit_ultrasonic_units
+    //% block="measure distances in %unit"
+    //% weight=100 blockGap=8
+    export function setUltrasonicUnits(unit: Units): void {
+        unitSelected = unit
+    }
+    
+    /**
+     * Measure the echo time (after trigger) and converts to cm or inches and returns as an int
+     * @param maxCmDistance maximum distance in centimeters (default is 500)
+     */
+    //% subcategory="Inputs"
+    //% group="Ultrasonic"
+    //% blockId=kitronik_labbit_ultrasonic_measure
+    //% block="measure distance"
+    //% weight=95 blockGap=8
+    export function measure(maxCmDistance = 500): number {
+        // send pulse
+        pins.setPull(triggerPin, PinPullMode.PullNone);
+        pins.digitalWritePin(triggerPin, 0);
+        control.waitMicros(2);
+        pins.digitalWritePin(triggerPin, 1);
+        control.waitMicros(10);
+        pins.digitalWritePin(triggerPin, 0);
+
+        // read pulse
+        const pulse = pins.pulseIn(echoPin, PulseValue.High, maxCmDistance * 39);
+        //From the HC-SR04 datasheet the formula for calculating distance is "microSecs of pulse"/58 for cm or "microSecs of pulse"/148 for inches.
+        //When measured actual distance compared to calculated distanceis not the same.  There must be an timing measurement with the pulse.
+        //values have been changed to match the correct measured distances so 58 changed to 39 and 148 changed to 98
+        switch (unitSelected) {
+            case Units.Centimeters: return Math.idiv(pulse, 39);
+            case Units.Inches: return Math.idiv(pulse, 98);
+            default: return 0;
+        }
     }
 
 	/**
@@ -518,44 +574,6 @@ namespace kitronik_labbit {
         buf[1] = output0Value & 0x3F
         buf[2] = 0x00
         pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
-    }
-
-	/**
-     * Turns on motor in the direction specified at the requested speed 
-	 * @param dir   which direction to go
-	 * @param speed how fast to spin the motor
-     */
-    //% subcategory="Motor"
-    //% blockId=kitronik_labbit_motor_on
-    //% block="turn motor |%dir|at speed %speed"
-    //% weight=100 blockGap=8
-    //% speed.min=0 speed.max=100
-    export function motorOn(dir: MotorDirection, speed: number): void {
-        /*first convert 0-100 to 0-1024 (approx) We wont worry about the lsat 24 to make life simpler*/
-        let OutputVal = Math.clamp(0, 100, speed) * 10;
-
-        switch (dir) {
-            case MotorDirection.Left:
-                pins.analogWritePin(AnalogPin.P12, OutputVal);
-                pins.digitalWritePin(DigitalPin.P16, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
-                break
-            case MotorDirection.Right:
-                pins.analogWritePin(AnalogPin.P12, OutputVal);
-                pins.digitalWritePin(DigitalPin.P16, 0);
-                break
-        }
-
-    }
-	/**
-     * Turns off the motor
-     */
-    //% subcategory="Motor"
-    //% blockId=kitronik_labbit_motor_off
-    //%block="stop motor"
-    //% weight=99 blockGap=8
-    export function motorOff(): void {
-        pins.digitalWritePin(DigitalPin.P12, 0);
-        pins.digitalWritePin(DigitalPin.P16, 0);
     }
 
     /**
@@ -942,62 +960,44 @@ namespace kitronik_labbit {
         let b = b$ + m;
         return packRGB(r, g, b);
     }
-    
-    
-    /**
-     * Set the distance measurement units to cm or inches (cm is default)
-     * @param unit desired conversion unit
-     */
-    //% subcategory="Inputs"
-    //% group="Analog"
-    //% blockId=kitronik_labbit_analog_input
-    //% block="read analog input value"
-    //% weight=100 blockGap=8
-    export function readAnalogInput(): number {
-        return pins.analogReadPin(AnalogPin.P2)
-    }
-    
-    /**
-     * Set the distance measurement units to cm or inches (cm is default)
-     * @param unit desired conversion unit
-     */
-    //% subcategory="Inputs"
-    //% group="Ultrasonic"
-    //% blockId=kitronik_labbit_ultrasonic_units
-    //% block="measure distances in %unit"
-    //% weight=100 blockGap=8
-    export function setUltrasonicUnits(unit: Units): void {
-        unitSelected = unit
-    }
-    
-    /**
-     * Measure the echo time (after trigger) and converts to cm or inches and returns as an int
-     * @param maxCmDistance maximum distance in centimeters (default is 500)
-     */
-    //% subcategory="Inputs"
-    //% group="Ultrasonic"
-    //% blockId=kitronik_labbit_ultrasonic_measure
-    //% block="measure distance"
-    //% weight=95 blockGap=8
-    export function measure(maxCmDistance = 500): number {
-        // send pulse
-        pins.setPull(triggerPin, PinPullMode.PullNone);
-        pins.digitalWritePin(triggerPin, 0);
-        control.waitMicros(2);
-        pins.digitalWritePin(triggerPin, 1);
-        control.waitMicros(10);
-        pins.digitalWritePin(triggerPin, 0);
 
-        // read pulse
-        const pulse = pins.pulseIn(echoPin, PulseValue.High, maxCmDistance * 39);
-        //From the HC-SR04 datasheet the formula for calculating distance is "microSecs of pulse"/58 for cm or "microSecs of pulse"/148 for inches.
-        //When measured actual distance compared to calculated distanceis not the same.  There must be an timing measurement with the pulse.
-        //values have been changed to match the correct measured distances so 58 changed to 39 and 148 changed to 98
-        switch (unitSelected) {
-            case Units.Centimeters: return Math.idiv(pulse, 39);
-            case Units.Inches: return Math.idiv(pulse, 98);
-            default: return 0;
+	/**
+     * Turns on motor in the direction specified at the requested speed 
+	 * @param dir   which direction to go
+	 * @param speed how fast to spin the motor
+     */
+    //% subcategory="Motor"
+    //% blockId=kitronik_labbit_motor_on
+    //% block="turn motor |%dir|at speed %speed"
+    //% weight=100 blockGap=8
+    //% speed.min=0 speed.max=100
+    export function motorOn(dir: MotorDirection, speed: number): void {
+        /*first convert 0-100 to 0-1024 (approx) We wont worry about the lsat 24 to make life simpler*/
+        let OutputVal = Math.clamp(0, 100, speed) * 10;
+
+        switch (dir) {
+            case MotorDirection.Left:
+                pins.analogWritePin(AnalogPin.P12, OutputVal);
+                pins.digitalWritePin(DigitalPin.P16, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
+                break
+            case MotorDirection.Right:
+                pins.analogWritePin(AnalogPin.P12, OutputVal);
+                pins.digitalWritePin(DigitalPin.P16, 0);
+                break
         }
+
     }
-    
+	/**
+     * Turns off the motor
+     */
+    //% subcategory="Motor"
+    //% blockId=kitronik_labbit_motor_off
+    //%block="stop motor"
+    //% weight=99 blockGap=8
+    export function motorOff(): void {
+        pins.digitalWritePin(DigitalPin.P12, 0);
+        pins.digitalWritePin(DigitalPin.P16, 0);
+    }
+
+
 }
