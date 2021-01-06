@@ -244,6 +244,91 @@ namespace kitronik_labbit {
         }
     }
 
+    ////////////////////////////////
+    //         MICROPHONE         //
+    ////////////////////////////////
+     
+    /**
+    * Read Sound Level blocks returns back a number 0-512 of the current sound level at that point
+    */
+    //% subcategory="Inputs"
+    //% group="Microphone"
+    //% blockId=kitronik_labbit_read_sound_level
+    //% block="read sound level"
+    //% weight=100 blockGap=8
+    export function readSoundLevel() {
+        return kitronik_microphone.readSoundLevel()
+    }
+
+    /**
+    * Read Sound Level blocks returns back a number 0-512 of the current sound level averaged over 5 samples
+    */
+    //% subcategory="Inputs"
+    //% group="Microphone"
+    //% blockId=kitronik_labbit_read_average_sound_level
+    //% block="read average sound level"
+    //% weight=95 blockGap=8
+    export function readAverageSoundLevel() {
+        let x = 0
+        let soundlevel = 0
+        let sample = 0
+
+        if (kitronik_microphone.initialised == false) {
+            kitronik_microphone.init()
+        }
+
+        if (kitronik_microphone.micListening == false) {
+            kitronik_microphone.micStartListening()
+        }
+
+        for (x = 0; x < 5; x++) {
+            sample = kitronik_microphone.samplesArray[x]
+            if (sample > soundlevel) {
+                soundlevel = sample
+            }
+        }
+
+        return soundlevel
+    }
+
+    /**
+    * Performs an action when a loud noise is detected, such as a clap
+    * @param claps is the number of claps to listen out for before running the function eg: 1
+    * @param timerperiod is period of time in which to listen for the claps or spikes eg: 1
+    * @param soundSpike_handler is function that is run once detection in sound 
+    */
+     //% subcategory="Inputs"
+    //% group="Microphone"
+    //% blockId=kitronik_labbit_listen_for_clap
+    //% block="listen for %claps claps within %timerperiod|seconds"
+    //% claps.min=1 claps.max=10
+    //% timerperiod.min=1 timerperiod.max=10
+    //% weight=90 blockGap=8
+    export function listenForClap(claps: number, timerperiod: number, soundSpike_handler: Action): void {
+        if (kitronik_microphone.initialised == false) {
+            kitronik_microphone.init()
+        }
+        kitronik_microphone.numberOfClaps = claps
+        kitronik_microphone.period = (timerperiod * 1000)
+        kitronik_microphone.sound_handler = soundSpike_handler
+        kitronik_microphone.startClapListening()
+    }
+
+    /**
+     * Set how sensitive the microphone is when detecting claps
+     * @param value - sensitivity (0-100)
+     */
+    //% subcategory="Inputs"
+    //% group="Microphone"
+    //% blockId=kitronik_labbit_set_mic_sensitivity
+    //% block="Set mic sensitivity to %value"
+    //% value.min=0 value.max=100 value.defl=80
+	//% weight=85 blockGap=8
+    export function setClapSensitivity(value: number): void {
+        value = Math.clamp(0, 100, value)
+        kitronik_microphone.threshold = kitronik_microphone.baseVoltageLevel + (105 - value)
+    }
+
 	/**
      * Turns on motor in the direction specified at the requested speed 
 	 * @param selectedLight  is the selection of which traffic light will be controlled
