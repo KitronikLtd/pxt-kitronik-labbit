@@ -188,6 +188,10 @@ namespace kitronik_labbit {
         output1Value = readBuf[1]
     }
 
+    ////////////////////////////////
+    //         ANALOG IP          //
+    ////////////////////////////////
+
     /**
      * Set the distance measurement units to cm or inches (cm is default)
      * @param unit desired conversion unit
@@ -200,7 +204,11 @@ namespace kitronik_labbit {
     export function readAnalogInput(): number {
         return pins.analogReadPin(AnalogPin.P2)
     }
-    
+
+    ////////////////////////////////
+    //         ULTRASONIC         //
+    ////////////////////////////////
+
     /**
      * Set the distance measurement units to cm or inches (cm is default)
      * @param unit desired conversion unit
@@ -209,7 +217,7 @@ namespace kitronik_labbit {
     //% group="Ultrasonic"
     //% blockId=kitronik_labbit_ultrasonic_units
     //% block="measure distances in %unit"
-    //% weight=100 blockGap=8
+    //% weight=75 blockGap=8
     export function setUltrasonicUnits(unit: Units): void {
         unitSelected = unit
     }
@@ -222,7 +230,7 @@ namespace kitronik_labbit {
     //% group="Ultrasonic"
     //% blockId=kitronik_labbit_ultrasonic_measure
     //% block="measure distance"
-    //% weight=95 blockGap=8
+    //% weight=70 blockGap=8
     export function measure(maxCmDistance = 500): number {
         // send pulse
         pins.setPull(triggerPin, PinPullMode.PullNone);
@@ -255,7 +263,7 @@ namespace kitronik_labbit {
     //% group="Microphone"
     //% blockId=kitronik_labbit_read_sound_level
     //% block="read sound level"
-    //% weight=100 blockGap=8
+    //% weight=95 blockGap=8
     export function readSoundLevel() {
         return kitronik_microphone.readSoundLevel()
     }
@@ -267,7 +275,7 @@ namespace kitronik_labbit {
     //% group="Microphone"
     //% blockId=kitronik_labbit_read_average_sound_level
     //% block="read average sound level"
-    //% weight=95 blockGap=8
+    //% weight=90 blockGap=8
     export function readAverageSoundLevel() {
         let x = 0
         let soundlevel = 0
@@ -303,7 +311,7 @@ namespace kitronik_labbit {
     //% block="listen for %claps claps within %timerperiod|seconds"
     //% claps.min=1 claps.max=10
     //% timerperiod.min=1 timerperiod.max=10
-    //% weight=90 blockGap=8
+    //% weight=85 blockGap=8
     export function listenForClap(claps: number, timerperiod: number, soundSpike_handler: Action): void {
         if (kitronik_microphone.initialised == false) {
             kitronik_microphone.init()
@@ -323,7 +331,7 @@ namespace kitronik_labbit {
     //% blockId=kitronik_labbit_set_mic_sensitivity
     //% block="Set mic sensitivity to %value"
     //% value.min=0 value.max=100 value.defl=80
-	//% weight=85 blockGap=8
+	//% weight=80 blockGap=8
     export function setClapSensitivity(value: number): void {
         value = Math.clamp(0, 100, value)
         kitronik_microphone.threshold = kitronik_microphone.baseVoltageLevel + (105 - value)
