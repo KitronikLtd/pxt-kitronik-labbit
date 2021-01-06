@@ -2,7 +2,7 @@
  * Blocks for driving the Kitronik LAB bit Board
  */
 //% weight=100 color=#00A654 icon="\uf0c3" block="LAB bit"
-//% groups='["Inputs", "Motor", "ZIP LEDs"]'
+//% groups='["Analog", "Microphone", "Ultrasonic"]'
 namespace kitronik_labbit {
 	/**
 	 * Well known colors for ZIP LEDs
@@ -197,7 +197,7 @@ namespace kitronik_labbit {
      * @param unit desired conversion unit
      */
     //% subcategory="Inputs"
-    //% group="Analog"
+    //% groups="Analog"
     //% blockId=kitronik_labbit_analog_input
     //% block="read analog input value"
     //% weight=100 blockGap=8
@@ -214,7 +214,7 @@ namespace kitronik_labbit {
      * @param unit desired conversion unit
      */
     //% subcategory="Inputs"
-    //% group="Ultrasonic"
+    //% groups="Ultrasonic"
     //% blockId=kitronik_labbit_ultrasonic_units
     //% block="measure distances in %unit"
     //% weight=75 blockGap=8
@@ -227,7 +227,7 @@ namespace kitronik_labbit {
      * @param maxCmDistance maximum distance in centimeters (default is 500)
      */
     //% subcategory="Inputs"
-    //% group="Ultrasonic"
+    //% groups="Ultrasonic"
     //% blockId=kitronik_labbit_ultrasonic_measure
     //% block="measure distance"
     //% weight=70 blockGap=8
@@ -260,7 +260,7 @@ namespace kitronik_labbit {
     * Read Sound Level blocks returns back a number 0-512 of the current sound level at that point
     */
     //% subcategory="Inputs"
-    //% group="Microphone"
+    //% groups="Microphone"
     //% blockId=kitronik_labbit_read_sound_level
     //% block="read sound level"
     //% weight=95 blockGap=8
@@ -272,7 +272,7 @@ namespace kitronik_labbit {
     * Read Sound Level blocks returns back a number 0-512 of the current sound level averaged over 5 samples
     */
     //% subcategory="Inputs"
-    //% group="Microphone"
+    //% groups="Microphone"
     //% blockId=kitronik_labbit_read_average_sound_level
     //% block="read average sound level"
     //% weight=90 blockGap=8
@@ -306,7 +306,7 @@ namespace kitronik_labbit {
     * @param soundSpike_handler is function that is run once detection in sound 
     */
      //% subcategory="Inputs"
-    //% group="Microphone"
+    //% groups="Microphone"
     //% blockId=kitronik_labbit_listen_for_clap
     //% block="listen for %claps claps within %timerperiod|seconds"
     //% claps.min=1 claps.max=10
@@ -327,7 +327,7 @@ namespace kitronik_labbit {
      * @param value - sensitivity (0-100)
      */
     //% subcategory="Inputs"
-    //% group="Microphone"
+    //% groups="Microphone"
     //% blockId=kitronik_labbit_set_mic_sensitivity
     //% block="Set mic sensitivity to %value"
     //% value.min=0 value.max=100 value.defl=80
