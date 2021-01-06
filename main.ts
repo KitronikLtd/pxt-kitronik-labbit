@@ -766,7 +766,7 @@ namespace kitronik_labbit {
          */
         //% subcategory="ZIP LED"
         //% blockId="kitronik_labbit_zip_string_color" block="%prettyLights|show color %rgb=colorNumberPicker2" 
-        //% weight=99 blockGap=8
+        //% weight=70 blockGap=8
         //% parts="neopixel"
         showColor(rgb: number) {
             rgb = rgb >> 0;
@@ -793,7 +793,7 @@ namespace kitronik_labbit {
          */
         //% subcategory="ZIP LED"
         //% blockId="kitronik_labbit_zip_show" block="%prettyLights|show changes"
-        //% weight=96 blockGap=8
+        //% weight=75 blockGap=8
         //% parts="neopixel"
         show() {
             //ws2812b.sendBuffer(this.buf, this.pin);
@@ -806,7 +806,7 @@ namespace kitronik_labbit {
          */
         //% subcategory="ZIP LED"
         //% blockId="kitronik_labbit_zip_clear" block="%prettyLights|turn all ZIP LEDs off"
-        //% weight=95 blockGap=8
+        //% weight=85 blockGap=8
         //% parts="neopixel"
         clear(): void {
             const stride = this._mode === ZipLedMode.RGBW ? 4 : 3;
@@ -820,7 +820,7 @@ namespace kitronik_labbit {
          */
         //% subcategory="ZIP LED"
         //% blockId="kitronik_labbit_zip_brightness" block="%prettyLights|set brightness to %brightness"
-        //% weight=92 blockGap=8
+        //% weight=95 blockGap=8
         //% parts="neopixel"
         setBrightness(brightness: ZipLedBrightness): void {
             this.brightness = brightness & 0xff;
@@ -832,7 +832,7 @@ namespace kitronik_labbit {
          */
         //% subcategory="ZIP LED"
         //% blockId="kitronik_labbit_zip_brightness_2" block="%prettyLights|set brightness to %brightness"
-        //% weight=5 blockGap=8
+        //% weight=90 blockGap=8
         //% brightnessPercent.min=0 brightnessPercent.max=100
         //% parts="neopixel"
         setBrightnessPercent(brightnessPercent: number): void {
@@ -988,7 +988,7 @@ namespace kitronik_labbit {
      */
     //% subcategory="ZIP LED"
     //% blockId=colorNumberPicker2 block="%value"
-    //% blockHidden=false
+    //% blockHidden=true
     //% weight=10 blockGap=8
     //% shim=TD_ID colorSecondary="#ffffff"
     //% value.fieldEditor="colornumber" value.fieldOptions.decompileLiterals=true
