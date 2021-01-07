@@ -305,7 +305,7 @@ namespace kitronik_labbit {
     //% subcategory="more"
     //% group="Microphone"
     //% blockId=kitronik_labbit_read_sound_level
-    //% block="read sound level"
+    //% block="read raw sound level"
     //% weight=95 blockGap=8
     export function readSoundLevel() {
         return kitronik_microphone.readSoundLevel()
@@ -726,7 +726,7 @@ namespace kitronik_labbit {
     //% subcategory="more"
     //% group="Dice"
     //% blockId=kitronik_labbit_dice_number
-    //% block="turn dice LED at %diceLedPosition | %dicePower"
+    //% block="turn %diceLedPosition| dice LED %dicePower|"
     //% weight=100 blockGap=8
     //% diceRoll.min=0 diceRoll.max=9
     export function diceLED(diceLedPosition: DiceLocation, dicePower: LightShow): void {
