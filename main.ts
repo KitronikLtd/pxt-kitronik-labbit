@@ -227,6 +227,31 @@ namespace kitronik_labbit {
         output1Value = readBuf[1]
     }
 
+    //generic global function to read the current values of the IO ports
+    function writeOutputPortSingleByte(regAddr: number, regValue: number): void {
+        let writeBuf = pins.createBuffer(2)
+        
+        if (ioInitialised == false) {
+            ioExpanderInit()
+        }  
+        writeBuf[0] = regAddr
+        writeBuf[1] = regAddr
+        pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
+    }
+
+    //generic global function to read the current values of the IO ports
+    function writeOutputPortDoubleByte(regValue0: number, regValue1: number): void {
+        let writeBuf = pins.createBuffer(3)
+        
+        if (ioInitialised == false) {
+            ioExpanderInit()
+        }  
+        writeBuf[0] = OUTPUT_0_REG
+        writeBuf[1] = regValue0
+        writeBuf[2] = regValue1
+        pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
+    }
+
     ////////////////////////////////
     //         ANALOG IP          //
     ////////////////////////////////
@@ -464,9 +489,10 @@ namespace kitronik_labbit {
             }
             value = (output0Value && 0x0F) + bitMask
         }
-        writeBuf[0] = OUTPUT_0_REG
-        writeBuf[1] = value
-        pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
+        writeOutputPortSingleByte(OUTPUT_0_REG, value)
+        //writeBuf[0] = OUTPUT_0_REG
+        //writeBuf[1] = value
+        //pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
     }
 
 
@@ -591,9 +617,10 @@ namespace kitronik_labbit {
                 value = output0Value ^ TRAFFIC_LIGHT_2_G_MASK
             }
         }
-        buf[0] = OUTPUT_0_REG
-        buf[1] = value
-        pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
+        writeOutputPortSingleByte(OUTPUT_0_REG, value)
+        //buf[0] = OUTPUT_0_REG
+        //buf[1] = value
+        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 	/**
@@ -605,16 +632,20 @@ namespace kitronik_labbit {
     //% weight=100 blockGap=8
     export function trafficLightOff(selectedLight: TrafficLight): void {
         let buf = pins.createBuffer(2)
-        
+        let value = 0
         readOutputPort()
-        buf[0] = OUTPUT_0_REG
+        //buf[0] = OUTPUT_0_REG
         if (selectedLight == TrafficLight.one){
-            buf[1] = output0Value & 0xF8
+            //buf[1] = output0Value & 0xF8
+            value = output0Value & 0xF8
         }
         else if (selectedLight == TrafficLight.two){
-            buf[1] = output0Value & 0xC3
+            //buf[1] = output0Value & 0xC3
+            value = output0Value & 0xC3
         }
-        pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
+
+        writeOutputPortSingleByte(OUTPUT_0_REG, value)
+        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 	/**
@@ -654,9 +685,10 @@ namespace kitronik_labbit {
                 value = DICE_SYMBOL_6
                 break
         }
-        buf[0] = OUTPUT_1_REG
-        buf[1] = value
-        pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
+        writeOutputPortSingleByte(OUTPUT_1_REG, value)
+        //buf[0] = OUTPUT_1_REG
+        //buf[1] = value
+        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 
@@ -718,10 +750,12 @@ namespace kitronik_labbit {
                 port1Value = DICE_NUMBER_9[1]
                 break
             }
-        buf[0] = OUTPUT_0_REG
-        buf[1] = port0Value
-        buf[2] = port1Value
-        pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
+
+        writeOutputPortDoubleByte(port0Value, port1Value)
+        //buf[0] = OUTPUT_0_REG
+        //buf[1] = port0Value
+        //buf[2] = port1Value
+        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 	/**
@@ -825,10 +859,11 @@ namespace kitronik_labbit {
                 }
                 break
             }
-        buf[0] = OUTPUT_0_REG
-        buf[1] = port0Value
-        buf[2] = port1Value
-        pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
+        writeOutputPortDoubleByte(port0Value, port1Value)
+        //buf[0] = OUTPUT_0_REG
+        //buf[1] = port0Value
+        //buf[2] = port1Value
+        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 	/**
@@ -840,13 +875,18 @@ namespace kitronik_labbit {
     //% weight=100 blockGap=8
     export function diceOff(): void {
         let buf = pins.createBuffer(3)
-        
+        let port0Value = 0
+        let port1Value = 0
         readOutputPort()
         
-        buf[0] = OUTPUT_0_REG
-        buf[1] = output0Value & 0x3F
-        buf[2] = 0x00
-        pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
+        port0Value = output0Value & 0x3F
+        port1Value = 0x00
+        writeOutputPortDoubleByte(port0Value, port1Value)
+
+        //buf[0] = OUTPUT_0_REG
+        //buf[1] = output0Value & 0x3F
+        //buf[2] = 0x00 
+        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
     /**
