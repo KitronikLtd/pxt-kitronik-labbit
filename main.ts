@@ -30,7 +30,6 @@ namespace kitronik_labbit {
 	    Black = 0x000000
 	}
 
-    /*Note that Forward and reverse are slightly arbitrary, as it depends on how the motor is wired...*/
     /**
      * Different directions for motors to turn
      */
@@ -79,6 +78,7 @@ namespace kitronik_labbit {
         Shortest
     }
     
+    //enum of the traffic light status selections
     export enum LightStatus {
         //% block="stop"
         Stop,
@@ -90,6 +90,7 @@ namespace kitronik_labbit {
         ReadyToStop
     }
     
+    //enum of whether option is turn on or off
     export enum LightShow {
         //% block="on"
         On,
@@ -97,6 +98,7 @@ namespace kitronik_labbit {
         Off
     }
     
+    //Selection list of traffic light
     export enum TrafficLight {
         //% block="I"
         one,
@@ -104,6 +106,7 @@ namespace kitronik_labbit {
         two
     }
 
+    //selection of colours on the traffic lights
     export enum LightColour {
         //% block="red"
         red,
@@ -143,6 +146,7 @@ namespace kitronik_labbit {
         BR,
     }
 
+    //DEFINES used within the software blocks
     let CHIP_ADDR = 0x42 //address in binary 0100 A2 A1 A0(RW) = 0100010
     let OUTPUT_0_REG = 0x02
     let OUTPUT_1_REG = 0x03
@@ -185,6 +189,7 @@ namespace kitronik_labbit {
     let DICE_LOCATION_BC_MASK = 0x80
     let DICE_LOCATION_BR_MASK = 0x04
 
+    //Global variables used within the software
     let output0Value = 0x00
     let output1Value = 0x00
 
@@ -192,6 +197,7 @@ namespace kitronik_labbit {
     let echoPin = DigitalPin.P15
     let unitSelected = Units.Centimeters
 
+    //start up and setup of the GPIO expander controlling the traffic lights and dice LEDs
     function ioExpanderInit(): void {
         let buf = pins.createBuffer(3)
 
@@ -204,6 +210,7 @@ namespace kitronik_labbit {
         ioInitialised = true //we have setup, so dont come in here again.
     }
 
+    //generic global function to read the current values of the IO ports
     function readOutputPort(): void {
         let writeBuf = pins.createBuffer(1)
         let readBuf = pins.createBuffer(2)
@@ -405,7 +412,7 @@ namespace kitronik_labbit {
     }
 
 	/**
-     * Turns on motor in the direction specified at the requested speed 
+     * Block sets the traffic light to aparticular status using words
 	 * @param selectedLight  is the selection of which traffic light will be controlled
 	 * @param lightStatus to display the traffic light control
      */
@@ -462,11 +469,6 @@ namespace kitronik_labbit {
         pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
     }
 
-	/**
-     * Turns on motor in the direction specified at the requested speed 
-	 * @param selectedLight  is the selection of which traffic light will be controlled
-	 * @param lightStatus to display the traffic light control
-     */
 
     /**
      * Choose if the Red LED on the traffic light is on or off
@@ -520,8 +522,11 @@ namespace kitronik_labbit {
     }
 
     /**
-     * Get the color wheel field editor
-     * @param color color, eg: #ff0000
+     * Traffic light block using the colour picker selection to determine which light is turned on or off
+     * @param selectedLight is the choice of which traffic light is selected and controlled.
+     * @param red color picket to if the light is turned on or off, eg: #ff0000
+     * @param yellow color picket to if the light is turned on or off, eg: #ffff00
+     * @param green color picket to if the light is turned on or off, eg: #00ff00
      */
     //% subcategory="Traffic Light"
     //% blockId=kitronik_labbit_traffic_light_individual 
@@ -592,7 +597,7 @@ namespace kitronik_labbit {
     }
 
 	/**
-     * Will turn off all the dice LED's 
+     * Will turn off all the traffic light LED's 
      */
     //% subcategory="Traffic Light"
     //% blockId=kitronik_labbit_traffic_light_off
@@ -620,7 +625,7 @@ namespace kitronik_labbit {
     //% blockId=kitronik_labbit_dice_roll
     //% block="roll %diceRoll | on dice"
     //% weight=100 blockGap=8
-    //% diceRoll.min=1 diceRoll.max=6
+    //% diceRoll.min=1 diceRoll.max=6 diceRoll.defl=1
     export function diceShow(diceRoll: number): void {
         let buf = pins.createBuffer(2)
         let value = 0
@@ -657,13 +662,13 @@ namespace kitronik_labbit {
 
 	/**
      * Illuminates the LED on the dice to show the dice 
-	 * @param diceRoll  number that shows the dice number on the LED's eg 1
+	 * @param diceNumber charector number that shows the dice number on the LED's eg 1
      */
     //% subcategory="Dice"
     //% blockId=kitronik_labbit_dice_number
     //% block="show %diceNumber | on dice LED's"
     //% weight=100 blockGap=8
-    //% diceRoll.min=0 diceRoll.max=9
+    //% diceNumber.min=0 diceNumber.max=9 diceNumber.defl=0
     export function diceNumber(diceNumber: number): void {
         let buf = pins.createBuffer(3)
         let port0Value = 0
@@ -721,8 +726,9 @@ namespace kitronik_labbit {
 
 	/**
      * Individually control each LED on the dice arrangement 
-	 * @param diceRoll  number that shows the dice number on the LED's eg 1
-     */
+	 * @param diceLEDPosition is the position selection of which LED on the dice is being controlled
+     * @param dicePower is the choice of whether the LED selected is turned on or off
+     **/
     //% subcategory="more"
     //% group="Dice"
     //% blockId=kitronik_labbit_dice_location
