@@ -235,7 +235,7 @@ namespace kitronik_labbit {
             ioExpanderInit()
         }  
         writeBuf[0] = regAddr
-        writeBuf[1] = regAddr
+        writeBuf[1] = regValue
         pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
     }
 
