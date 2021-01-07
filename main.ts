@@ -725,10 +725,9 @@ namespace kitronik_labbit {
      */
     //% subcategory="more"
     //% group="Dice"
-    //% blockId=kitronik_labbit_dice_number
+    //% blockId=kitronik_labbit_dice_location
     //% block="turn %diceLedPosition| dice LED %dicePower|"
     //% weight=100 blockGap=8
-    //% diceRoll.min=0 diceRoll.max=9
     export function diceLED(diceLedPosition: DiceLocation, dicePower: LightShow): void {
         let buf = pins.createBuffer(3)
         let port0Value = 0
