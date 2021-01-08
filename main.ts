@@ -257,18 +257,6 @@ namespace kitronik_labbit {
     ////////////////////////////////
 
     /**
-     * Read the raw value of the analog input
-     */
-    //% subcategory="more"
-    //% group="Analog"
-    //% blockId=kitronik_labbit_analog_input
-    //% block="read raw analog input value"
-    //% weight=100 blockGap=8
-    export function readAnalogInput(): number {
-        return pins.analogReadPin(AnalogPin.P2)
-    }
-
-    /**
      * Read the scaled value of the analog input, value returned is between 0-100
      */
     //% subcategory="Inputs"
@@ -330,18 +318,6 @@ namespace kitronik_labbit {
     ////////////////////////////////
     //         MICROPHONE         //
     ////////////////////////////////
-     
-    /**
-    * Read raw Sound Level blocks returns back a number 0-512 of the current sound level at that point
-    */
-    //% subcategory="more"
-    //% group="Microphone"
-    //% blockId=kitronik_labbit_read_sound_level
-    //% block="read raw sound level"
-    //% weight=95 blockGap=8
-    export function readSoundLevel() {
-        return kitronik_microphone.readSoundLevel()
-    }
 
     /**
     * Read Sound Level blocks returns back a number 0-100 of the current sound level at that point
@@ -353,37 +329,6 @@ namespace kitronik_labbit {
     //% weight=95 blockGap=8
     export function readScaledSoundLevel() {
         return pins.map(kitronik_microphone.readSoundLevel(), 0, 512, 0, 100)
-    }
-
-    /**
-    * Read Sound Level blocks returns back a number 0-512 of the current sound level averaged over 5 samples
-    */
-    //% subcategory="more"
-    //% group="Microphone"
-    //% blockId=kitronik_labbit_read_average_sound_level
-    //% block="read raw average sound level"
-    //% weight=90 blockGap=8
-    export function readAverageSoundLevel() {
-        let x = 0
-        let soundlevel = 0
-        let sample = 0
-
-        if (kitronik_microphone.initialised == false) {
-            kitronik_microphone.init()
-        }
-
-        if (kitronik_microphone.micListening == false) {
-            kitronik_microphone.micStartListening()
-        }
-
-        for (x = 0; x < 5; x++) {
-            sample = kitronik_microphone.samplesArray[x]
-            if (sample > soundlevel) {
-                soundlevel = sample
-            }
-        }
-
-        return soundlevel
     }
 
     /**
@@ -420,81 +365,6 @@ namespace kitronik_labbit {
         kitronik_microphone.sound_handler = soundSpike_handler
         kitronik_microphone.startClapListening()
     }
-
-    /**
-     * Set how sensitive the microphone is when detecting claps
-     * @param value - sensitivity (0-100)
-     */
-    //% subcategory="Inputs"
-    //% group="Microphone"
-    //% blockId=kitronik_labbit_set_mic_sensitivity
-    //% block="Set mic sensitivity to %value"
-    //% value.min=0 value.max=100 value.defl=80
-	//% weight=80 blockGap=8
-    export function setClapSensitivity(value: number): void {
-        value = Math.clamp(0, 100, value)
-        kitronik_microphone.threshold = kitronik_microphone.baseVoltageLevel + (105 - value)
-    }
-
-	/**
-     * Block sets the traffic light to aparticular status using words
-	 * @param selectedLight  is the selection of which traffic light will be controlled
-	 * @param lightStatus to display the traffic light control
-     */
-    //% subcategory="more"
-    //% group="Traffic Light"
-    //% blockId=kitronik_labbit_traffic_light_status
-    //% block="turn traffic light %selectedLight|to %lightStage"
-    //% weight=100 blockGap=8
-    export function trafficLightStatus(selectedLight: TrafficLight, lightStage: LightStatus): void {
-        let writeBuf = pins.createBuffer(3)
-        let reg = 0
-        let value = 0
-        let bitMask = 0
-        
-        readOutputPort()
-        if (selectedLight == TrafficLight.one)
-        {
-           switch (lightStage) {
-                case LightStatus.Stop:
-                    bitMask = TRAFFIC_LIGHT_1_R_MASK
-                    break
-                case LightStatus.GetReady:
-                    bitMask = TRAFFIC_LIGHT_1_R_MASK + TRAFFIC_LIGHT_1_Y_MASK
-                    break
-                case LightStatus.Go:
-                    bitMask = TRAFFIC_LIGHT_1_G_MASK
-                    break
-                case LightStatus.ReadyToStop:
-                    bitMask = TRAFFIC_LIGHT_1_Y_MASK
-                    break
-            }
-            value = (output0Value && 0xF0) + bitMask
-        }
-        else if (selectedLight == TrafficLight.two)
-        {
-           switch (lightStage) {
-                case LightStatus.Stop:
-                    bitMask = TRAFFIC_LIGHT_2_R_MASK
-                    break
-                case LightStatus.GetReady:
-                    bitMask = TRAFFIC_LIGHT_2_R_MASK + TRAFFIC_LIGHT_2_Y_MASK
-                    break
-                case LightStatus.Go:
-                    bitMask = TRAFFIC_LIGHT_2_G_MASK
-                    break
-                case LightStatus.ReadyToStop:
-                    bitMask = TRAFFIC_LIGHT_2_Y_MASK
-                    break
-            }
-            value = (output0Value && 0x0F) + bitMask
-        }
-        writeOutputPortSingleByte(OUTPUT_0_REG, value)
-        //writeBuf[0] = OUTPUT_0_REG
-        //writeBuf[1] = value
-        //pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
-    }
-
 
     /**
      * Choose if the Red LED on the traffic light is on or off
@@ -751,114 +621,6 @@ namespace kitronik_labbit {
                 break
             }
 
-        writeOutputPortDoubleByte(port0Value, port1Value)
-        //buf[0] = OUTPUT_0_REG
-        //buf[1] = port0Value
-        //buf[2] = port1Value
-        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
-    }
-
-	/**
-     * Individually control each LED on the dice arrangement 
-	 * @param diceLEDPosition is the position selection of which LED on the dice is being controlled
-     * @param dicePower is the choice of whether the LED selected is turned on or off
-     **/
-    //% subcategory="more"
-    //% group="Dice"
-    //% blockId=kitronik_labbit_dice_location
-    //% block="turn %diceLedPosition| dice LED %dicePower|"
-    //% weight=100 blockGap=8
-    export function diceLED(diceLedPosition: DiceLocation, dicePower: LightShow): void {
-        let buf = pins.createBuffer(3)
-        let port0Value = 0
-        let port1Value = 0
-        
-        readOutputPort()
-        //switch statement sorts by dice location
-        //the following if statement determines whether the led should be on or off by masking the required bit of the register
-        switch (diceLedPosition) {
-            case DiceLocation.TL:
-                if (dicePower == LightShow.On){
-                    port0Value = output0Value | DICE_LOCATION_TL_MASK
-                }
-                //turn the red light off with XOR the require bit
-                else if (dicePower == LightShow.Off) {
-                   port0Value = output0Value ^ DICE_LOCATION_TL_MASK
-                }
-                break
-            case DiceLocation.TC:
-                if (dicePower == LightShow.On){
-                    port1Value = output1Value | DICE_LOCATION_TC_MASK
-                }
-                //turn the red light off with XOR the require bit
-                else if (dicePower == LightShow.Off) {
-                   port1Value = output1Value ^ DICE_LOCATION_TC_MASK
-                }
-                break
-            case DiceLocation.TR:
-                if (dicePower == LightShow.On){
-                    port0Value = output0Value | DICE_LOCATION_TR_MASK
-                }
-                //turn the red light off with XOR the require bit
-                else if (dicePower == LightShow.Off) {
-                   port0Value = output0Value ^ DICE_LOCATION_TR_MASK
-                }
-                break
-            case DiceLocation.ML:
-                if (dicePower == LightShow.On){
-                    port0Value = output0Value | DICE_LOCATION_ML_MASK
-                }
-                //turn the red light off with XOR the require bit
-                else if (dicePower == LightShow.Off) {
-                   port0Value = output0Value ^ DICE_LOCATION_ML_MASK
-                }
-                break
-            case DiceLocation.MC:
-                 if (dicePower == LightShow.On){
-                    port0Value = output0Value | DICE_LOCATION_MC_MASK
-                }
-                //turn the red light off with XOR the require bit
-                else if (dicePower == LightShow.Off) {
-                   port0Value = output0Value ^ DICE_LOCATION_MC_MASK
-                }
-                break
-            case DiceLocation.MR:
-                if (dicePower == LightShow.On){
-                    port0Value = output0Value | DICE_LOCATION_MR_MASK
-                }
-                //turn the red light off with XOR the require bit
-                else if (dicePower == LightShow.Off) {
-                   port0Value = output0Value ^ DICE_LOCATION_MR_MASK
-                }
-                break
-            case DiceLocation.BL:
-                 if (dicePower == LightShow.On){
-                    port0Value = output0Value | DICE_LOCATION_BL_MASK
-                }
-                //turn the red light off with XOR the require bit
-                else if (dicePower == LightShow.Off) {
-                   port0Value = output0Value ^ DICE_LOCATION_BL_MASK
-                }
-                break
-            case DiceLocation.BC:
-                if (dicePower == LightShow.On){
-                    port1Value = output1Value | DICE_LOCATION_BC_MASK
-                }
-                //turn the red light off with XOR the require bit
-                else if (dicePower == LightShow.Off) {
-                   port1Value = output1Value ^ DICE_LOCATION_BC_MASK
-                }
-                break
-            case DiceLocation.BR:
-                if (dicePower == LightShow.On){
-                    port0Value = output0Value | DICE_LOCATION_BR_MASK
-                }
-                //turn the red light off with XOR the require bit
-                else if (dicePower == LightShow.Off) {
-                   port0Value = output0Value ^ DICE_LOCATION_BR_MASK
-                }
-                break
-            }
         writeOutputPortDoubleByte(port0Value, port1Value)
         //buf[0] = OUTPUT_0_REG
         //buf[1] = port0Value
@@ -1310,6 +1072,250 @@ namespace kitronik_labbit {
     export function motorOff(): void {
         pins.digitalWritePin(DigitalPin.P12, 0);
         pins.digitalWritePin(DigitalPin.P16, 0);
+    }
+
+    ////////////////////////////
+    //  User advanced blocks  //
+    ////////////////////////////
+    
+    /**
+     * Read the raw value of the analog input
+     */
+    //% subcategory="more"
+    //% group="Analog"
+    //% blockId=kitronik_labbit_analog_input
+    //% block="read raw analog input value"
+    //% weight=100 blockGap=8
+    export function readAnalogInput(): number {
+        return pins.analogReadPin(AnalogPin.P2)
+    }
+
+    /**
+    * Read raw Sound Level blocks returns back a number 0-512 of the current sound level at that point
+    */
+    //% subcategory="more"
+    //% group="Microphone"
+    //% blockId=kitronik_labbit_read_sound_level
+    //% block="read raw sound level"
+    //% weight=95 blockGap=8
+    export function readSoundLevel() {
+        return kitronik_microphone.readSoundLevel()
+    }
+
+
+    /**
+    * Read Sound Level blocks returns back a number 0-512 of the current sound level averaged over 5 samples
+    */
+    //% subcategory="more"
+    //% group="Microphone"
+    //% blockId=kitronik_labbit_read_average_sound_level
+    //% block="read raw average sound level"
+    //% weight=90 blockGap=8
+    export function readAverageSoundLevel() {
+        let x = 0
+        let soundlevel = 0
+        let sample = 0
+
+        if (kitronik_microphone.initialised == false) {
+            kitronik_microphone.init()
+        }
+
+        if (kitronik_microphone.micListening == false) {
+            kitronik_microphone.micStartListening()
+        }
+
+        for (x = 0; x < 5; x++) {
+            sample = kitronik_microphone.samplesArray[x]
+            if (sample > soundlevel) {
+                soundlevel = sample
+            }
+        }
+
+        return soundlevel
+    }
+
+    /**
+     * Set how sensitive the microphone is when detecting claps
+     * @param value - sensitivity (0-100)
+     */
+    //% subcategory="more"
+    //% group="Microphone"
+    //% blockId=kitronik_labbit_set_mic_sensitivity
+    //% block="Set mic sensitivity to %value"
+    //% value.min=0 value.max=100 value.defl=80
+	//% weight=80 blockGap=8
+    export function setClapSensitivity(value: number): void {
+        value = Math.clamp(0, 100, value)
+        kitronik_microphone.threshold = kitronik_microphone.baseVoltageLevel + (105 - value)
+    }
+    
+
+	/**
+     * Block sets the traffic light to aparticular status using words
+	 * @param selectedLight  is the selection of which traffic light will be controlled
+	 * @param lightStatus to display the traffic light control
+     */
+    //% subcategory="more"
+    //% group="Traffic Light"
+    //% blockId=kitronik_labbit_traffic_light_status
+    //% block="turn traffic light %selectedLight|to %lightStage"
+    //% weight=100 blockGap=8
+    export function trafficLightStatus(selectedLight: TrafficLight, lightStage: LightStatus): void {
+        let writeBuf = pins.createBuffer(3)
+        let reg = 0
+        let value = 0
+        let bitMask = 0
+        
+        readOutputPort()
+        if (selectedLight == TrafficLight.one)
+        {
+           switch (lightStage) {
+                case LightStatus.Stop:
+                    bitMask = TRAFFIC_LIGHT_1_R_MASK
+                    break
+                case LightStatus.GetReady:
+                    bitMask = TRAFFIC_LIGHT_1_R_MASK + TRAFFIC_LIGHT_1_Y_MASK
+                    break
+                case LightStatus.Go:
+                    bitMask = TRAFFIC_LIGHT_1_G_MASK
+                    break
+                case LightStatus.ReadyToStop:
+                    bitMask = TRAFFIC_LIGHT_1_Y_MASK
+                    break
+            }
+            value = (output0Value && 0xF0) + bitMask
+        }
+        else if (selectedLight == TrafficLight.two)
+        {
+           switch (lightStage) {
+                case LightStatus.Stop:
+                    bitMask = TRAFFIC_LIGHT_2_R_MASK
+                    break
+                case LightStatus.GetReady:
+                    bitMask = TRAFFIC_LIGHT_2_R_MASK + TRAFFIC_LIGHT_2_Y_MASK
+                    break
+                case LightStatus.Go:
+                    bitMask = TRAFFIC_LIGHT_2_G_MASK
+                    break
+                case LightStatus.ReadyToStop:
+                    bitMask = TRAFFIC_LIGHT_2_Y_MASK
+                    break
+            }
+            value = (output0Value && 0x0F) + bitMask
+        }
+        writeOutputPortSingleByte(OUTPUT_0_REG, value)
+        //writeBuf[0] = OUTPUT_0_REG
+        //writeBuf[1] = value
+        //pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
+    }
+
+
+	/**
+     * Individually control each LED on the dice arrangement 
+	 * @param diceLEDPosition is the position selection of which LED on the dice is being controlled
+     * @param dicePower is the choice of whether the LED selected is turned on or off
+     **/
+    //% subcategory="more"
+    //% group="Dice"
+    //% blockId=kitronik_labbit_dice_location
+    //% block="turn %diceLedPosition| dice LED %dicePower|"
+    //% weight=100 blockGap=8
+    export function diceLED(diceLedPosition: DiceLocation, dicePower: LightShow): void {
+        let buf = pins.createBuffer(3)
+        let port0Value = 0
+        let port1Value = 0
+        
+        readOutputPort()
+        //switch statement sorts by dice location
+        //the following if statement determines whether the led should be on or off by masking the required bit of the register
+        switch (diceLedPosition) {
+            case DiceLocation.TL:
+                if (dicePower == LightShow.On){
+                    port0Value = output0Value | DICE_LOCATION_TL_MASK
+                }
+                //turn the red light off with XOR the require bit
+                else if (dicePower == LightShow.Off) {
+                   port0Value = output0Value ^ DICE_LOCATION_TL_MASK
+                }
+                break
+            case DiceLocation.TC:
+                if (dicePower == LightShow.On){
+                    port1Value = output1Value | DICE_LOCATION_TC_MASK
+                }
+                //turn the red light off with XOR the require bit
+                else if (dicePower == LightShow.Off) {
+                   port1Value = output1Value ^ DICE_LOCATION_TC_MASK
+                }
+                break
+            case DiceLocation.TR:
+                if (dicePower == LightShow.On){
+                    port0Value = output0Value | DICE_LOCATION_TR_MASK
+                }
+                //turn the red light off with XOR the require bit
+                else if (dicePower == LightShow.Off) {
+                   port0Value = output0Value ^ DICE_LOCATION_TR_MASK
+                }
+                break
+            case DiceLocation.ML:
+                if (dicePower == LightShow.On){
+                    port0Value = output0Value | DICE_LOCATION_ML_MASK
+                }
+                //turn the red light off with XOR the require bit
+                else if (dicePower == LightShow.Off) {
+                   port0Value = output0Value ^ DICE_LOCATION_ML_MASK
+                }
+                break
+            case DiceLocation.MC:
+                 if (dicePower == LightShow.On){
+                    port0Value = output0Value | DICE_LOCATION_MC_MASK
+                }
+                //turn the red light off with XOR the require bit
+                else if (dicePower == LightShow.Off) {
+                   port0Value = output0Value ^ DICE_LOCATION_MC_MASK
+                }
+                break
+            case DiceLocation.MR:
+                if (dicePower == LightShow.On){
+                    port0Value = output0Value | DICE_LOCATION_MR_MASK
+                }
+                //turn the red light off with XOR the require bit
+                else if (dicePower == LightShow.Off) {
+                   port0Value = output0Value ^ DICE_LOCATION_MR_MASK
+                }
+                break
+            case DiceLocation.BL:
+                 if (dicePower == LightShow.On){
+                    port0Value = output0Value | DICE_LOCATION_BL_MASK
+                }
+                //turn the red light off with XOR the require bit
+                else if (dicePower == LightShow.Off) {
+                   port0Value = output0Value ^ DICE_LOCATION_BL_MASK
+                }
+                break
+            case DiceLocation.BC:
+                if (dicePower == LightShow.On){
+                    port1Value = output1Value | DICE_LOCATION_BC_MASK
+                }
+                //turn the red light off with XOR the require bit
+                else if (dicePower == LightShow.Off) {
+                   port1Value = output1Value ^ DICE_LOCATION_BC_MASK
+                }
+                break
+            case DiceLocation.BR:
+                if (dicePower == LightShow.On){
+                    port0Value = output0Value | DICE_LOCATION_BR_MASK
+                }
+                //turn the red light off with XOR the require bit
+                else if (dicePower == LightShow.Off) {
+                   port0Value = output0Value ^ DICE_LOCATION_BR_MASK
+                }
+                break
+            }
+        writeOutputPortDoubleByte(port0Value, port1Value)
+        //buf[0] = OUTPUT_0_REG
+        //buf[1] = port0Value
+        //buf[2] = port1Value
+        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 
