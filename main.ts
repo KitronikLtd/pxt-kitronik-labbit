@@ -35,10 +35,10 @@ namespace kitronik_labbit {
      * Different directions for motors to turn
      */
     export enum MotorDirection {
-        //% block="left"
-        Left,
-        //% block="right"
-        Right
+        //% block="clockwise"
+        CW,
+        //% block="counter-clockwise"
+        CCW
     }
 
     /**
@@ -326,7 +326,7 @@ namespace kitronik_labbit {
     //% subcategory="Inputs"
     //% group="Microphone"
     //% blockId=kitronik_labbit_read_scaled_sound_level
-    //% block="read sound level"
+    //% block="measure sound volume"
     //% weight=95 blockGap=8
     export function readScaledSoundLevel() {
         return pins.map(kitronik_microphone.readSoundLevel(), 0, 512, 0, 100)
@@ -338,7 +338,7 @@ namespace kitronik_labbit {
     //% subcategory="Inputs"
     //% group="Microphone"
     //% blockId=kitronik_labbit_read_scaled_average_sound_level
-    //% block="read averaged sound level"
+    //% block="measure averaged sound volume"
     //% weight=95 blockGap=8
     export function readScaledAverageSoundLevel() {
         return pins.map(readAverageSoundLevel(), 0, 512, 0, 100)
@@ -569,7 +569,7 @@ namespace kitronik_labbit {
      */
     //% subcategory="Dice"
     //% blockId=kitronik_labbit_dice_number
-    //% block="show %diceNumber | on dice LED's"
+    //% block="show %diceNumber | on dice"
     //% weight=100 blockGap=8
     //% diceNumber.min=0 diceNumber.max=9 diceNumber.defl=0
     export function diceNumber(diceNumber: number): void {
@@ -634,7 +634,7 @@ namespace kitronik_labbit {
      */
     //% subcategory="Dice"
     //% blockId=kitronik_labbit_dice_off
-    //% block="turn off dice LED's"
+    //% block="clear dice"
     //% weight=100 blockGap=8
     export function diceOff(): void {
         let buf = pins.createBuffer(3)
@@ -666,7 +666,7 @@ namespace kitronik_labbit {
         /**
          * Shows a rainbow pattern on all ZIP LEDs.
          */
-        //% subcategory="ZIP LED"
+        //% subcategory="Colour Lights"
         //% blockId="kitronik_labbit_zip_rainbow" block="%prettyLights|show rainbow" 
         //% weight=94 blockGap=8
         //% parts="neopixel"
@@ -733,7 +733,7 @@ namespace kitronik_labbit {
          * Rotate LEDs forward.
          * @param offset number of ZIP LEDs to rotate forward, eg: 1
          */
-        //% subcategory="ZIP LED"
+        //% subcategory="Colour Lights"
         //% blockId="kitronik_labbit_zip_rotate" block="%prettyLights|rotate ZIP LEDs by %offset"
         //% weight=93 blockGap=8
         //% parts="neopixel"
@@ -747,7 +747,7 @@ namespace kitronik_labbit {
          * Shows all ZIP LEDs display as a given color. 
          * @param rgb RGB color of the LED
          */
-        //% subcategory="ZIP LED"
+        //% subcategory="Colour Lights"
         //% blockId="kitronik_labbit_zip_string_color" block="%prettyLights|show color %rgb=colorNumberPicker2" 
         //% weight=70 blockGap=8
         //% parts="neopixel"
@@ -763,7 +763,7 @@ namespace kitronik_labbit {
          * @param zipLedNum position of the ZIP LED in the string
          * @param rgb RGB color of the ZIP LED
          */
-        //% subcategory="ZIP LED"
+        //% subcategory="Colour Lights"
         //% blockId="kitronik_labbit_set_zip_color" block="%prettyLights|set ZIP LED %zipLedNum|to %rgb=colorNumberPicker2" 
         //% weight=80 blockGap=8
         //% parts="neopixel"
@@ -774,7 +774,7 @@ namespace kitronik_labbit {
         /**
          * Send all the changes to the ZIP LEDs.
          */
-        //% subcategory="ZIP LED"
+        //% subcategory="Colour Lights"
         //% blockId="kitronik_labbit_zip_show" block="%prettyLights|show changes"
         //% weight=75 blockGap=8
         //% parts="neopixel"
@@ -787,7 +787,7 @@ namespace kitronik_labbit {
         /**
          * Turn off all LEDs on the ZIP LED string.
          */
-        //% subcategory="ZIP LED"
+        //% subcategory="Colour Lights"
         //% blockId="kitronik_labbit_zip_clear" block="%prettyLights|turn all ZIP LEDs off"
         //% weight=85 blockGap=8
         //% parts="neopixel"
@@ -801,7 +801,7 @@ namespace kitronik_labbit {
          * Set the brightness of the ZIP LEDs. Applies to future changes.
          * @param brightness a measure of LED brightness in 0-255.
          */
-        //% subcategory="ZIP LED"
+        //% subcategory="Colour Lights"
         //% blockId="kitronik_labbit_zip_brightness" block="%prettyLights|set brightness to %brightness"
         //% weight=95 blockGap=8
         //% parts="neopixel"
@@ -813,7 +813,7 @@ namespace kitronik_labbit {
          * Set the brightness of the ZIP LEDs. Applies to future changes.
          * @param brightnessPercent a measure of LED brightness in 0-255.
          */
-        //% subcategory="ZIP LED"
+        //% subcategory="Colour Lights"
         //% blockId="kitronik_labbit_zip_brightness_2" block="%prettyLights|set brightness to %brightness"
         //% weight=90 blockGap=8
         //% brightnessPercent.min=0 brightnessPercent.max=100
@@ -923,7 +923,7 @@ namespace kitronik_labbit {
      * Create a new ZIP LED driver for a number of attached ZIP LEDs.
      * @param numleds the number of ZIP LEDs connected to the Klip Motor board, eg: 7
      */
-    //% subcategory="ZIP LED"
+    //% subcategory="Colour Lights"
     //% blockId="kitronik_labbit_zip_create" block="string of %numleds|ZIP LEDs"
     //% weight=100 blockGap=8
     //% parts="neopixel"
@@ -969,7 +969,7 @@ namespace kitronik_labbit {
      * Get the color wheel field editor
      * @param color color, eg: #ff0000
      */
-    //% subcategory="ZIP LED"
+    //% subcategory="Colour Lights"
     //% blockId=colorNumberPicker2 block="%value"
     //% blockHidden=true
     //% weight=10 blockGap=8
@@ -1052,11 +1052,11 @@ namespace kitronik_labbit {
         let OutputVal = Math.clamp(0, 100, speed) * 10;
 
         switch (dir) {
-            case MotorDirection.Left:
+            case MotorDirection.CW:
                 pins.analogWritePin(AnalogPin.P12, OutputVal);
                 pins.digitalWritePin(DigitalPin.P16, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
                 break
-            case MotorDirection.Right:
+            case MotorDirection.CCW:
                 pins.analogWritePin(AnalogPin.P12, OutputVal);
                 pins.digitalWritePin(DigitalPin.P16, 0);
                 break
