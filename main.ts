@@ -228,7 +228,7 @@ namespace kitronik_labbit {
         output1Value = readBuf[1]
     }
 
-    //generic global function to read the current values of the IO ports
+    //generic global function to write a single byte to allocated register address
     function writeOutputPortSingleByte(regAddr: number, regValue: number): void {
         let writeBuf = pins.createBuffer(2)
         
@@ -240,7 +240,7 @@ namespace kitronik_labbit {
         pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
     }
 
-    //generic global function to read the current values of the IO ports
+    //generic global function to write to both output registers, address  is defaulted to port0 to write to both ports
     function writeOutputPortDoubleByte(regValue0: number, regValue1: number): void {
         let writeBuf = pins.createBuffer(3)
         
