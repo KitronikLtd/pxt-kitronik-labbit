@@ -2,7 +2,7 @@
  * Blocks for driving the Kitronik LAB bit Board
  */
 //% weight=100 color=#00A654 icon="\uf0c3" block="LAB bit"
-//% subcategory='["Inputs", "Traffic Light", "Dice", "ZIP LED", "Motor", "more"]'
+//% subcategory='["Inputs", "Traffic Light", "Dice", "ZIP LED", "Motor", "extra"]'
 //% groups='["Analog", "Microphone", "Ultrasonic"]'
 namespace kitronik_labbit {
 	/**
@@ -1082,7 +1082,7 @@ namespace kitronik_labbit {
     /**
      * Read the raw value of the analog input
      */
-    //% subcategory="more"
+    //% subcategory="extra"
     //% group="Analog"
     //% blockId=kitronik_labbit_analog_input
     //% block="read raw analog input value"
@@ -1094,7 +1094,7 @@ namespace kitronik_labbit {
     /**
     * Read raw Sound Level blocks returns back a number 0-512 of the current sound level at that point
     */
-    //% subcategory="more"
+    //% subcategory="extra"
     //% group="Microphone"
     //% blockId=kitronik_labbit_read_sound_level
     //% block="read raw sound level"
@@ -1107,7 +1107,7 @@ namespace kitronik_labbit {
     /**
     * Read Sound Level blocks returns back a number 0-512 of the current sound level averaged over 5 samples
     */
-    //% subcategory="more"
+    //% subcategory="extra"
     //% group="Microphone"
     //% blockId=kitronik_labbit_read_average_sound_level
     //% block="read raw average sound level"
@@ -1139,7 +1139,7 @@ namespace kitronik_labbit {
      * Set how sensitive the microphone is when detecting claps
      * @param value - sensitivity (0-100)
      */
-    //% subcategory="more"
+    //% subcategory="extra"
     //% group="Microphone"
     //% blockId=kitronik_labbit_set_mic_sensitivity
     //% block="Set mic sensitivity to %value"
@@ -1156,7 +1156,7 @@ namespace kitronik_labbit {
 	 * @param selectedLight  is the selection of which traffic light will be controlled
 	 * @param lightStatus to display the traffic light control
      */
-    //% subcategory="more"
+    //% subcategory="extra"
     //% group="Traffic Light"
     //% blockId=kitronik_labbit_traffic_light_status
     //% block="turn traffic light %selectedLight|to %lightStage"
@@ -1216,7 +1216,7 @@ namespace kitronik_labbit {
 	 * @param diceLEDPosition is the position selection of which LED on the dice is being controlled
      * @param dicePower is the choice of whether the LED selected is turned on or off
      **/
-    //% subcategory="more"
+    //% subcategory="extra"
     //% group="Dice"
     //% blockId=kitronik_labbit_dice_location
     //% block="turn %diceLedPosition| dice LED %dicePower|"
