@@ -941,6 +941,15 @@ namespace kitronik_labbit {
         return prettyLights;
     }
 
+
+    //% subcategory="Colour Lights"
+    //% blockId=kitronik_labbit_zip_start
+    //%block="turn on colour lights"
+    //% weight=99 blockGap=8
+    export function turnOnZIP(): void {
+        createZIPString(7)
+    }
+
     /**
      * Converts red, green, blue channels into a RGB color
      * @param red value of the red channel between 0 and 255. eg: 255
