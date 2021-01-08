@@ -2,6 +2,7 @@
  * Blocks for driving the Kitronik LAB bit Board
  */
 //% weight=100 color=#00A654 icon="\uf0c3" block="LAB bit"
+//% subcategory='["Inputs", "Traffic Light", "Dice", "ZIP LED", "Motor", "more"]'
 //% groups='["Analog", "Microphone", "Ultrasonic"]'
 namespace kitronik_labbit {
 	/**
