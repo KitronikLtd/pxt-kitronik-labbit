@@ -947,7 +947,7 @@ namespace kitronik_labbit {
     //%block="turn on colour lights"
     //% weight=99 blockGap=8
     export function turnOnZIP(): void {
-        createZIPString(7)
+        let prettyLights = createZIPString(7)
     }
 
     /**
