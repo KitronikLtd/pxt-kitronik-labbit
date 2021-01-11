@@ -147,7 +147,7 @@ namespace kitronik_labbit {
         BR,
     }
 
-    //DEFINES used within the software blocks
+    //DEFINES used within the software blocks for GPIO expander
     let CHIP_ADDR = 0x42 //address in binary 0100 A2 A1 A0(RW) = 0100010
     let OUTPUT_0_REG = 0x02
     let OUTPUT_1_REG = 0x03
@@ -190,13 +190,22 @@ namespace kitronik_labbit {
     let DICE_LOCATION_BC_MASK = 0x80
     let DICE_LOCATION_BR_MASK = 0x04
 
+    //Define of the two different values required in conversion equation for the ultrasonic to measure accurately
+    let ULTRASONIC_V1_DIV_CM = 39
+    let ULTRASONIC_V2_DIV_CM = 58
+    let ULTRASONIC_V1_DIV_IN = 98
+    let ULTRASONIC_V2_DIV_IN = 148
+
     //Global variables used within the software
     let output0Value = 0x00
     let output1Value = 0x00
 
+    //Ultrasonic gobal variables
     let triggerPin = DigitalPin.P13
     let echoPin = DigitalPin.P15
     let unitSelected = Units.Centimeters
+    let cmEquationDivider = 0
+    let inEquationDivider = 0
 
     //start up and setup of the GPIO expander controlling the traffic lights and dice LEDs
     function ioExpanderInit(): void {
@@ -207,6 +216,18 @@ namespace kitronik_labbit {
         buf[2] = 0xFF
         pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
         basic.pause(1)
+
+        let sizeOfRam = control.ramSize()
+        if (sizeOfRam >= 100000)
+        {
+            cmEquationDivider = ULTRASONIC_V2_DIV_CM
+            inEquationDivider = ULTRASONIC_V2_DIV_IN
+        }
+        else
+        {
+            cmEquationDivider = ULTRASONIC_V1_DIV_CM
+            inEquationDivider = ULTRASONIC_V1_DIV_IN
+        }
 
         ioInitialised = true //we have setup, so dont come in here again.
     }
@@ -310,11 +331,12 @@ namespace kitronik_labbit {
         //When measured actual distance compared to calculated distanceis not the same.  There must be an timing measurement with the pulse.
         //values have been changed to match the correct measured distances so 58 changed to 39 and 148 changed to 98
         switch (unitSelected) {
-            case Units.Centimeters: return Math.idiv(pulse, 39);
-            case Units.Inches: return Math.idiv(pulse, 98);
+            case Units.Centimeters: return Math.idiv(pulse, cmEquationDivider);
+            case Units.Inches: return Math.idiv(pulse, inEquationDivider);
             default: return 0;
         }
     }
+
 
     ////////////////////////////////
     //         MICROPHONE         //
