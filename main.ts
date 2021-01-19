@@ -148,7 +148,7 @@ namespace kitronik_labbit {
     }
 
     //DEFINES used within the software blocks for GPIO expander
-    let CHIP_ADDR = 0x42 //address in binary 0100 A2 A1 A0(RW) = 0100010
+    let CHIP_ADDR = 0x22 //address in binary 0100 A2 A1 A0(RW) = 0100010X = 0x44,0x45
     let OUTPUT_0_REG = 0x02
     let OUTPUT_1_REG = 0x03
     let IO_CONFIG_0 = 0x06
@@ -210,13 +210,15 @@ namespace kitronik_labbit {
     //start up and setup of the GPIO expander controlling the traffic lights and dice LEDs
     function ioExpanderInit(): void {
         let buf = pins.createBuffer(3)
-
+        basic.showString("S")
+        basic.showNumber(CHIP_ADDR) 
+        basic.showNumber(IO_CONFIG_0)
         buf[0] = IO_CONFIG_0
-        buf[1] = 0xFF
-        buf[2] = 0xFF
+        buf[1] = 0x00
+        buf[2] = 0x00
         pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
-        basic.pause(1)
-
+        basic.pause(10)
+        basic.showString("D")
         let sizeOfRam = control.ramSize()
         if (sizeOfRam >= 100000)
         {
@@ -252,13 +254,14 @@ namespace kitronik_labbit {
     //generic global function to write a single byte to allocated register address
     function writeOutputPortSingleByte(regAddr: number, regValue: number): void {
         let writeBuf = pins.createBuffer(2)
-        
+        basic.showString("WT")
         if (ioInitialised == false) {
             ioExpanderInit()
-        }  
+        } 
         writeBuf[0] = regAddr
         writeBuf[1] = regValue
         pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
+        basic.pause(10)
     }
 
     //generic global function to write to both output registers, address  is defaulted to port0 to write to both ports
@@ -272,6 +275,7 @@ namespace kitronik_labbit {
         writeBuf[1] = regValue0
         writeBuf[2] = regValue1
         pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
+        basic.pause(10)
     }
 
     ////////////////////////////////
@@ -455,8 +459,9 @@ namespace kitronik_labbit {
         let buf = pins.createBuffer(2)
         let value = 0
         let bitMask = 0
-        
-        readOutputPort()
+        output0Value = 0
+        output1Value = 0
+        //readOutputPort()
 
         if (selectedLight == TrafficLight.one){
             //turn the red light on with ORing the required bit
