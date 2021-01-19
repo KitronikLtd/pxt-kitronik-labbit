@@ -148,47 +148,47 @@ namespace kitronik_labbit {
     }
 
     //DEFINES used within the software blocks for GPIO expander
-    let CHIP_ADDR = 0x22 //address in binary 0100 A2 A1 A0(RW) = 0100010X = 0x44,0x45
+    let CHIP_ADDR = 0x23 //address in binary 0100 A2 A1 A0(RW) = 0100010X = 0x44,0x45 after uBit shift
     let OUTPUT_0_REG = 0x02
     let OUTPUT_1_REG = 0x03
     let IO_CONFIG_0 = 0x06
     let IO_CONFIG_1 = 0x07
     let ioInitialised = false
     
-    let TRAFFIC_LIGHT_1_R_MASK = 0x01
-    let TRAFFIC_LIGHT_1_Y_MASK = 0x02
-    let TRAFFIC_LIGHT_1_G_MASK = 0x04
-    let TRAFFIC_LIGHT_2_R_MASK = 0x08
-    let TRAFFIC_LIGHT_2_Y_MASK = 0x10
-    let TRAFFIC_LIGHT_2_G_MASK = 0x20
+    let TRAFFIC_LIGHT_1_R_MASK = 0xFE
+    let TRAFFIC_LIGHT_1_Y_MASK = 0xFD
+    let TRAFFIC_LIGHT_1_G_MASK = 0xFB
+    let TRAFFIC_LIGHT_2_R_MASK = 0xF7
+    let TRAFFIC_LIGHT_2_Y_MASK = 0xEF
+    let TRAFFIC_LIGHT_2_G_MASK = 0xDF
     
-    let DICE_SYMBOL_1 = 0x08
-    let DICE_SYMBOL_2 = 0x14
-    let DICE_SYMBOL_3 = 0x1C
-    let DICE_SYMBOL_4 = 0x55
-    let DICE_SYMBOL_5 = 0x5D
-    let DICE_SYMBOL_6 = 0x77
+    let DICE_SYMBOL_1 = 0xF7
+    let DICE_SYMBOL_2 = 0xEB
+    let DICE_SYMBOL_3 = 0xE3
+    let DICE_SYMBOL_4 = 0xAA
+    let DICE_SYMBOL_5 = 0xA2
+    let DICE_SYMBOL_6 = 0x88
     
-    let DICE_NUMBER_0 = [0xC0, 0x77]
-    let DICE_NUMBER_1 = [0x00, 0x07]
-    let DICE_NUMBER_2 = [0x40, 0x5D]
-    let DICE_NUMBER_3 = [0xC0, 0x5F]
-    let DICE_NUMBER_4 = [0x00, 0x3F]
-    let DICE_NUMBER_5 = [0x40, 0x5F]
-    let DICE_NUMBER_6 = [0x80, 0x7E]
-    let DICE_NUMBER_7 = [0x40, 0x59]
-    let DICE_NUMBER_8 = [0xC0, 0x7F]
-    let DICE_NUMBER_9 = [0x40, 0x3F]
+    let DICE_NUMBER_0 = [0x3F, 0x88]
+    let DICE_NUMBER_1 = [0xFF, 0xF8]
+    let DICE_NUMBER_2 = [0xBF, 0xA2]
+    let DICE_NUMBER_3 = [0x3F, 0xA0]
+    let DICE_NUMBER_4 = [0xFF, 0xC0]
+    let DICE_NUMBER_5 = [0xBF, 0xA0]
+    let DICE_NUMBER_6 = [0x7F, 0x81]
+    let DICE_NUMBER_7 = [0xBF, 0xA6]
+    let DICE_NUMBER_8 = [0x3F, 0x80]
+    let DICE_NUMBER_9 = [0xBF, 0xC0]
 
-    let DICE_LOCATION_TL_MASK = 0x10
-    let DICE_LOCATION_TC_MASK = 0x40
-    let DICE_LOCATION_TR_MASK = 0x01
-    let DICE_LOCATION_ML_MASK = 0x20
-    let DICE_LOCATION_MC_MASK = 0x08
-    let DICE_LOCATION_MR_MASK = 0x02
-    let DICE_LOCATION_BL_MASK = 0x40
-    let DICE_LOCATION_BC_MASK = 0x80
-    let DICE_LOCATION_BR_MASK = 0x04
+    let DICE_LOCATION_TL_MASK = 0xEF
+    let DICE_LOCATION_TC_MASK = 0xBF
+    let DICE_LOCATION_TR_MASK = 0xFE
+    let DICE_LOCATION_ML_MASK = 0xDF
+    let DICE_LOCATION_MC_MASK = 0xF7
+    let DICE_LOCATION_MR_MASK = 0xFD
+    let DICE_LOCATION_BL_MASK = 0xBF
+    let DICE_LOCATION_BC_MASK = 0x7F
+    let DICE_LOCATION_BR_MASK = 0xFB
 
     //Define of the two different values required in conversion equation for the ultrasonic to measure accurately
     let ULTRASONIC_V1_DIV_CM = 39
@@ -197,28 +197,32 @@ namespace kitronik_labbit {
     let ULTRASONIC_V2_DIV_IN = 148
 
     //Global variables used within the software
-    let output0Value = 0x00
-    let output1Value = 0x00
+    let output0Value = 0xFF
+    let output1Value = 0xFF
 
     //Ultrasonic gobal variables
     let triggerPin = DigitalPin.P13
     let echoPin = DigitalPin.P15
     let unitSelected = Units.Centimeters
-    let cmEquationDivider = 0
-    let inEquationDivider = 0
+    let cmEquationDivider = ULTRASONIC_V1_DIV_CM
+    let inEquationDivider = ULTRASONIC_V1_DIV_IN
 
     //start up and setup of the GPIO expander controlling the traffic lights and dice LEDs
     function ioExpanderInit(): void {
         let buf = pins.createBuffer(3)
-        basic.showString("S")
-        basic.showNumber(CHIP_ADDR) 
-        basic.showNumber(IO_CONFIG_0)
+
         buf[0] = IO_CONFIG_0
         buf[1] = 0x00
         buf[2] = 0x00
         pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
-        basic.pause(10)
-        basic.showString("D")
+        basic.pause(1)
+
+        buf[0] = OUTPUT_0_REG
+        buf[1] = 0xFF
+        buf[2] = 0xFF
+        pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
+        basic.pause(1)
+
         let sizeOfRam = control.ramSize()
         if (sizeOfRam >= 100000)
         {
@@ -254,14 +258,14 @@ namespace kitronik_labbit {
     //generic global function to write a single byte to allocated register address
     function writeOutputPortSingleByte(regAddr: number, regValue: number): void {
         let writeBuf = pins.createBuffer(2)
-        basic.showString("WT")
+
         if (ioInitialised == false) {
             ioExpanderInit()
         } 
         writeBuf[0] = regAddr
         writeBuf[1] = regValue
         pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
-        basic.pause(10)
+        basic.pause(1)
     }
 
     //generic global function to write to both output registers, address  is defaulted to port0 to write to both ports
@@ -275,7 +279,7 @@ namespace kitronik_labbit {
         writeBuf[1] = regValue0
         writeBuf[2] = regValue1
         pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
-        basic.pause(10)
+        basic.pause(1)
     }
 
     ////////////////////////////////
@@ -355,7 +359,7 @@ namespace kitronik_labbit {
     //% block="measure sound volume"
     //% weight=95 blockGap=8
     export function readScaledSoundLevel() {
-        return pins.map(kitronik_microphone.readSoundLevel(), 0, 512, 0, 100)
+        return pins.map(kitronik_microphone.readSoundLevel(), 512, 1023, 0, 100)
     }
 
     /**
@@ -367,7 +371,7 @@ namespace kitronik_labbit {
     //% block="measure averaged sound volume"
     //% weight=95 blockGap=8
     export function readScaledAverageSoundLevel() {
-        return pins.map(readAverageSoundLevel(), 0, 512, 0, 100)
+        return pins.map(readAverageSoundLevel(), 512, 1023, 0, 100)
     }
 
     /**
@@ -459,14 +463,13 @@ namespace kitronik_labbit {
         let buf = pins.createBuffer(2)
         let value = 0
         let bitMask = 0
-        output0Value = 0
-        output1Value = 0
-        //readOutputPort()
+
+        readOutputPort()
 
         if (selectedLight == TrafficLight.one){
             //turn the red light on with ORing the required bit
             if (red == 0xff0000){
-                value = output0Value | TRAFFIC_LIGHT_1_R_MASK
+                value = output0Value & TRAFFIC_LIGHT_1_R_MASK
             }
             //turn the red light off with XOR the require bit
             else if (red == 0x900606) {
@@ -474,7 +477,7 @@ namespace kitronik_labbit {
             }
             //turn the yellow light on with ORing the required bit
             if (yellow == 0xffff00){
-                value = output0Value | TRAFFIC_LIGHT_1_Y_MASK
+                value = output0Value & TRAFFIC_LIGHT_1_Y_MASK
             }
             //turn the yellow light off with XOR the require bit
             else if (yellow == 0x878604) {
@@ -482,7 +485,7 @@ namespace kitronik_labbit {
             }
             //turn the green light on with ORing the required bit
             if (green == 0x0000ff){
-                value = output0Value | TRAFFIC_LIGHT_1_G_MASK
+                value = output0Value & TRAFFIC_LIGHT_1_G_MASK
             }
             //turn the green light off with XOR the require bit
             else if (green == 0x0f4604) {
@@ -492,7 +495,7 @@ namespace kitronik_labbit {
         else if (selectedLight == TrafficLight.two){
             //turn the red light on with ORing the required bit
             if (red == 0xff0000){
-                value = output0Value | TRAFFIC_LIGHT_2_R_MASK
+                value = output0Value & TRAFFIC_LIGHT_2_R_MASK
             }
             //turn the red light off with XOR the require bit
             else if (red == 0x900606) {
@@ -500,7 +503,7 @@ namespace kitronik_labbit {
             }
             //turn the yellow light on with ORing the required bit
             if (yellow == 0xffff00){
-                value = output0Value | TRAFFIC_LIGHT_2_Y_MASK
+                value = output0Value & TRAFFIC_LIGHT_2_Y_MASK
             }
             //turn the yellow light off with XOR the require bit
             else if (yellow == 0x878604) {
@@ -508,7 +511,7 @@ namespace kitronik_labbit {
             }
             //turn the green light on with ORing the required bit
             if (green == 0x0000ff){
-                value = output0Value | TRAFFIC_LIGHT_2_G_MASK
+                value = output0Value & TRAFFIC_LIGHT_2_G_MASK
             }
             //turn the green light off with XOR the require bit
             else if (green == 0x0f4604) {
@@ -1080,8 +1083,8 @@ namespace kitronik_labbit {
 
         switch (dir) {
             case MotorDirection.CW:
-                pins.analogWritePin(AnalogPin.P12, OutputVal);
-                pins.digitalWritePin(DigitalPin.P16, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
+                pins.analogWritePin(AnalogPin.P16, OutputVal);
+                pins.digitalWritePin(DigitalPin.P12, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
                 break
             case MotorDirection.CCW:
                 pins.analogWritePin(AnalogPin.P12, OutputVal);
