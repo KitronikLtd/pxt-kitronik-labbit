@@ -168,27 +168,27 @@ namespace kitronik_labbit {
     let DICE_SYMBOL_4 = 0xAA
     let DICE_SYMBOL_5 = 0xA2
     let DICE_SYMBOL_6 = 0x88
-    
-    let DICE_NUMBER_0 = [0x3F, 0x88]
-    let DICE_NUMBER_1 = [0xFF, 0xF8]
-    let DICE_NUMBER_2 = [0xBF, 0xA2]
-    let DICE_NUMBER_3 = [0x3F, 0xA0]
-    let DICE_NUMBER_4 = [0xFF, 0xC0]
-    let DICE_NUMBER_5 = [0xBF, 0xA0]
-    let DICE_NUMBER_6 = [0x7F, 0x81]
-    let DICE_NUMBER_7 = [0xBF, 0xA6]
-    let DICE_NUMBER_8 = [0x3F, 0x80]
-    let DICE_NUMBER_9 = [0xBF, 0xC0]
 
-    let DICE_LOCATION_TL_MASK = 0xEF
-    let DICE_LOCATION_TC_MASK = 0xBF
-    let DICE_LOCATION_TR_MASK = 0xFE
-    let DICE_LOCATION_ML_MASK = 0xDF
-    let DICE_LOCATION_MC_MASK = 0xF7
-    let DICE_LOCATION_MR_MASK = 0xFD
-    let DICE_LOCATION_BL_MASK = 0xBF
-    let DICE_LOCATION_BC_MASK = 0x7F
-    let DICE_LOCATION_BR_MASK = 0xFB
+    let DICE_NUMBER_0 = [0x00, 0x88]
+    let DICE_NUMBER_1 = [0xC0, 0xF8]
+    let DICE_NUMBER_2 = [0x80, 0xA2]
+    let DICE_NUMBER_3 = [0x00, 0xA0]
+    let DICE_NUMBER_4 = [0xC0, 0xC0]
+    let DICE_NUMBER_5 = [0x00, 0xA1]
+    let DICE_NUMBER_6 = [0x40, 0x81]
+    let DICE_NUMBER_7 = [0x80, 0xA6]
+    let DICE_NUMBER_8 = [0x00, 0x80]
+    let DICE_NUMBER_9 = [0x80, 0xC0]
+
+    let DICE_LOCATION_TL_MASK = 0x10
+    let DICE_LOCATION_TC_MASK = 0x40
+    let DICE_LOCATION_TR_MASK = 0x01
+    let DICE_LOCATION_ML_MASK = 0x20
+    let DICE_LOCATION_MC_MASK = 0x08
+    let DICE_LOCATION_MR_MASK = 0x02
+    let DICE_LOCATION_BL_MASK = 0x40
+    let DICE_LOCATION_BC_MASK = 0x80
+    let DICE_LOCATION_BR_MASK = 0x04
 
     //Define of the two different values required in conversion equation for the ultrasonic to measure accurately
     let ULTRASONIC_V1_DIV_CM = 39
@@ -593,9 +593,6 @@ namespace kitronik_labbit {
                 break
         }
         writeOutputPortSingleByte(OUTPUT_1_REG, value)
-        //buf[0] = OUTPUT_1_REG
-        //buf[1] = value
-        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 
@@ -614,55 +611,51 @@ namespace kitronik_labbit {
         let port1Value = 0
         
         readOutputPort()
-        
+        output0Value & (0xFF - TRAFFIC_LIGHT_2_G_MASK)
         switch (diceNumber) {
             case 0:
-                port0Value = DICE_NUMBER_0[0] ^ output0Value
+                port0Value = DICE_NUMBER_0[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_0[1]
                 break
             case 1:
-                port0Value = DICE_NUMBER_1[0] ^ output0Value
+                port0Value = DICE_NUMBER_1[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_1[1]
                 break
             case 2:
-                port0Value = DICE_NUMBER_2[0] ^ output0Value
+                port0Value = DICE_NUMBER_2[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_2[1]
                 break
             case 3:
-                port0Value = DICE_NUMBER_3[0] ^ output0Value
+                port0Value = DICE_NUMBER_3[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_3[1]
                 break
             case 4:
-                port0Value = DICE_NUMBER_4[0] ^ output0Value
+                port0Value = DICE_NUMBER_4[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_4[1]
                 break
             case 5:
-                port0Value = DICE_NUMBER_5[0] ^ output0Value
+                port0Value = DICE_NUMBER_5[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_5[1]
                 break
             case 6:
-                port0Value = DICE_NUMBER_6[0] ^ output0Value
+                port0Value = DICE_NUMBER_6[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_6[1]
                 break
             case 7:
-                port0Value = DICE_NUMBER_7[0] ^ output0Value
+                port0Value = DICE_NUMBER_7[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_7[1]
                 break
             case 8:
-                port0Value = DICE_NUMBER_8[0] ^ output0Value
+                port0Value = DICE_NUMBER_8[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_8[1]
                 break
             case 9:
-                port0Value = DICE_NUMBER_9[0] ^ output0Value
+                port0Value = DICE_NUMBER_9[0] + (output0Value & 0x3F)
                 port1Value = DICE_NUMBER_9[1]
                 break
             }
 
         writeOutputPortDoubleByte(port0Value, port1Value)
-        //buf[0] = OUTPUT_0_REG
-        //buf[1] = port0Value
-        //buf[2] = port1Value
-        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 	/**
@@ -678,14 +671,10 @@ namespace kitronik_labbit {
         let port1Value = 0
         readOutputPort()
         
-        port0Value = output0Value & 0x3F
-        port1Value = 0x00
+        port0Value = output0Value | 0xC0
+        port1Value = 0xFF
         writeOutputPortDoubleByte(port0Value, port1Value)
 
-        //buf[0] = OUTPUT_0_REG
-        //buf[1] = output0Value & 0x3F
-        //buf[2] = 0x00 
-        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
     /**
