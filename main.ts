@@ -208,7 +208,7 @@ namespace kitronik_labbit {
     let inEquationDivider = ULTRASONIC_V1_DIV_IN
 
     //start up and setup of the GPIO expander controlling the traffic lights and dice LEDs
-    export function ioExpanderInit(): void {
+    export function setup(): void {
         let buf = pins.createBuffer(3)
 
         buf[0] = IO_CONFIG_0
@@ -234,7 +234,7 @@ namespace kitronik_labbit {
             cmEquationDivider = ULTRASONIC_V1_DIV_CM
             inEquationDivider = ULTRASONIC_V1_DIV_IN
         }
-
+        kitronik_microphone.setMicrophonePin("P1")
         ioInitialised = true //we have setup, so dont come in here again.
     }
 
@@ -244,7 +244,7 @@ namespace kitronik_labbit {
         let readBuf = pins.createBuffer(2)
         
         if (ioInitialised == false) {
-            ioExpanderInit()
+            setup()
         }
         
         writeBuf[0] = OUTPUT_0_REG
@@ -260,7 +260,7 @@ namespace kitronik_labbit {
         let writeBuf = pins.createBuffer(2)
 
         if (ioInitialised == false) {
-            ioExpanderInit()
+            setup()
         } 
         writeBuf[0] = regAddr
         writeBuf[1] = regValue
@@ -273,7 +273,7 @@ namespace kitronik_labbit {
         let writeBuf = pins.createBuffer(3)
         
         if (ioInitialised == false) {
-            ioExpanderInit()
+            setup()
         }  
         writeBuf[0] = OUTPUT_0_REG
         writeBuf[1] = regValue0
@@ -359,7 +359,11 @@ namespace kitronik_labbit {
     //% block="measure sound volume"
     //% weight=95 blockGap=8
     export function readScaledSoundLevel() {
-        return pins.map(kitronik_microphone.readSoundLevel(), 512, 1023, 0, 100)
+        if (ioInitialised == false) {
+            kitronik_microphone.init()
+            setup()
+        }
+        return pins.map(kitronik_microphone.readSoundLevel(), 0, 512, 0, 100)
     }
 
     /**
@@ -371,8 +375,13 @@ namespace kitronik_labbit {
     //% block="measure averaged sound volume"
     //% weight=95 blockGap=8
     export function readScaledAverageSoundLevel() {
-        return pins.map(readAverageSoundLevel(), 512, 1023, 0, 100)
+        if (ioInitialised == false) {
+            kitronik_microphone.init()
+            setup()
+        }
+        return pins.map(readAverageSoundLevel(), 0, 512, 0, 100)
     }
+
 
     /**
     * Performs an action when a loud noise is detected, such as a clap
@@ -390,6 +399,7 @@ namespace kitronik_labbit {
     export function listenForClap(claps: number, timerperiod: number, soundSpike_handler: Action): void {
         if (kitronik_microphone.initialised == false) {
             kitronik_microphone.init()
+            setup()
         }
         kitronik_microphone.numberOfClaps = claps
         kitronik_microphone.period = (timerperiod * 1000)
@@ -569,7 +579,7 @@ namespace kitronik_labbit {
         let value = 0
         
         if (ioInitialised == false) {
-            ioExpanderInit()
+            setup()
         }
         
         switch (diceRoll) {
@@ -605,11 +615,14 @@ namespace kitronik_labbit {
     //% block="show %diceNumber | on dice"
     //% weight=100 blockGap=8
     //% diceNumber.min=0 diceNumber.max=9 diceNumber.defl=0
-    export function diceNumber(diceNumber: number): void {
+    export function showDiceNumber(diceNumber: number): void {
         let buf = pins.createBuffer(3)
         let port0Value = 0
         let port1Value = 0
-        
+        if (diceNumber >= 10)
+        {
+            diceNumber = 9
+        }
         readOutputPort()
         output0Value & (0xFF - TRAFFIC_LIGHT_2_G_MASK)
         switch (diceNumber) {
@@ -1125,6 +1138,10 @@ namespace kitronik_labbit {
     //% block="read raw sound level"
     //% weight=95 blockGap=8
     export function readSoundLevel() {
+        if (kitronik_microphone.initialised == false) {
+            kitronik_microphone.init()
+            setup()
+        }
         return kitronik_microphone.readSoundLevel()
     }
 
@@ -1144,6 +1161,7 @@ namespace kitronik_labbit {
 
         if (kitronik_microphone.initialised == false) {
             kitronik_microphone.init()
+            setup()
         }
 
         if (kitronik_microphone.micListening == false) {
@@ -1171,6 +1189,10 @@ namespace kitronik_labbit {
     //% value.min=0 value.max=100 value.defl=80
 	//% weight=80 blockGap=8
     export function setClapSensitivity(value: number): void {
+        if (kitronik_microphone.initialised == false) {
+            kitronik_microphone.init()
+            setup()
+        }
         value = Math.clamp(0, 100, value)
         kitronik_microphone.threshold = kitronik_microphone.baseVoltageLevel + (105 - value)
     }
