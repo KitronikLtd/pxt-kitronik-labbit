@@ -155,13 +155,13 @@ namespace kitronik_labbit {
     let IO_CONFIG_1 = 0x07
     let ioInitialised = false
     
-    let TRAFFIC_LIGHT_1_R_MASK = 0xFE
-    let TRAFFIC_LIGHT_1_Y_MASK = 0xFD
-    let TRAFFIC_LIGHT_1_G_MASK = 0xFB
-    let TRAFFIC_LIGHT_2_R_MASK = 0xF7
-    let TRAFFIC_LIGHT_2_Y_MASK = 0xEF
-    let TRAFFIC_LIGHT_2_G_MASK = 0xDF
-    
+    let TRAFFIC_LIGHT_1_R_MASK = 0x01
+    let TRAFFIC_LIGHT_1_Y_MASK = 0x02
+    let TRAFFIC_LIGHT_1_G_MASK = 0x04
+    let TRAFFIC_LIGHT_2_R_MASK = 0x08
+    let TRAFFIC_LIGHT_2_Y_MASK = 0x10
+    let TRAFFIC_LIGHT_2_G_MASK = 0x20
+
     let DICE_SYMBOL_1 = 0xF7
     let DICE_SYMBOL_2 = 0xEB
     let DICE_SYMBOL_3 = 0xE3
@@ -208,7 +208,7 @@ namespace kitronik_labbit {
     let inEquationDivider = ULTRASONIC_V1_DIV_IN
 
     //start up and setup of the GPIO expander controlling the traffic lights and dice LEDs
-    function ioExpanderInit(): void {
+    export function ioExpanderInit(): void {
         let buf = pins.createBuffer(3)
 
         buf[0] = IO_CONFIG_0
@@ -256,7 +256,7 @@ namespace kitronik_labbit {
     }
 
     //generic global function to write a single byte to allocated register address
-    function writeOutputPortSingleByte(regAddr: number, regValue: number): void {
+    export function writeOutputPortSingleByte(regAddr: number, regValue: number): void {
         let writeBuf = pins.createBuffer(2)
 
         if (ioInitialised == false) {
@@ -461,67 +461,76 @@ namespace kitronik_labbit {
     //% weight=90 blockGap=8
     export function trafficLightShow(selectedLight: TrafficLight, red: number, yellow: number, green: number): void {
         let buf = pins.createBuffer(2)
-        let value = 0
+        let maskedValue = 0
         let bitMask = 0
 
         readOutputPort()
 
         if (selectedLight == TrafficLight.one){
-            //turn the red light on with ORing the required bit
+            //turn the red light on with ANDing the required bit inverted mask
             if (red == 0xff0000){
-                value = output0Value & TRAFFIC_LIGHT_1_R_MASK
+                maskedValue = output0Value & (0xFF - TRAFFIC_LIGHT_1_R_MASK)
+                output0Value = maskedValue
             }
-            //turn the red light off with XOR the require bit
+            //turn the red light off with OR the require bit
             else if (red == 0x900606) {
-                value = output0Value ^ TRAFFIC_LIGHT_1_R_MASK
+                maskedValue = output0Value | TRAFFIC_LIGHT_1_R_MASK
+                output0Value = maskedValue
             }
-            //turn the yellow light on with ORing the required bit
+            //turn the yellow light on with ANDing the required bit inverted mask
             if (yellow == 0xffff00){
-                value = output0Value & TRAFFIC_LIGHT_1_Y_MASK
+                maskedValue = output0Value & (0xFF - TRAFFIC_LIGHT_1_Y_MASK)
+                output0Value = maskedValue
             }
-            //turn the yellow light off with XOR the require bit
+            //turn the yellow light off with XNOR the require bit
             else if (yellow == 0x878604) {
-                value = output0Value ^ TRAFFIC_LIGHT_1_Y_MASK
+                maskedValue = output0Value | TRAFFIC_LIGHT_1_Y_MASK
+                output0Value = maskedValue
             }
-            //turn the green light on with ORing the required bit
-            if (green == 0x0000ff){
-                value = output0Value & TRAFFIC_LIGHT_1_G_MASK
+            //turn the green light on with ANDing the required bit inverted mask
+            if (green == 0x00ff00){
+                maskedValue = output0Value & (0xFF - TRAFFIC_LIGHT_1_G_MASK)
+                output0Value = maskedValue
             }
-            //turn the green light off with XOR the require bit
+            //turn the green light off with XNOR the require bit
             else if (green == 0x0f4604) {
-                value = output0Value ^ TRAFFIC_LIGHT_1_G_MASK
+                maskedValue = output0Value | TRAFFIC_LIGHT_1_G_MASK
+                output0Value = maskedValue
             }
         }
         else if (selectedLight == TrafficLight.two){
-            //turn the red light on with ORing the required bit
+            //turn the red light on with ANDing the required bit
             if (red == 0xff0000){
-                value = output0Value & TRAFFIC_LIGHT_2_R_MASK
+                maskedValue = output0Value & (0xFF - TRAFFIC_LIGHT_2_R_MASK)
+                output0Value = maskedValue
             }
-            //turn the red light off with XOR the require bit
+            //turn the red light off with OR the require bit
             else if (red == 0x900606) {
-                value = output0Value ^ TRAFFIC_LIGHT_2_R_MASK
+                maskedValue = output0Value | TRAFFIC_LIGHT_2_R_MASK
+                output0Value = maskedValue
             }
-            //turn the yellow light on with ORing the required bit
+            //turn the yellow light on with ANDing the required bit inverted mask
             if (yellow == 0xffff00){
-                value = output0Value & TRAFFIC_LIGHT_2_Y_MASK
+                maskedValue = output0Value & (0xFF - TRAFFIC_LIGHT_2_Y_MASK)
+                output0Value = maskedValue
             }
-            //turn the yellow light off with XOR the require bit
+            //turn the yellow light off with XNOR the require bit
             else if (yellow == 0x878604) {
-                value = output0Value ^ TRAFFIC_LIGHT_2_Y_MASK
+                maskedValue = output0Value | TRAFFIC_LIGHT_2_Y_MASK
+                output0Value = maskedValue
             }
-            //turn the green light on with ORing the required bit
-            if (green == 0x0000ff){
-                value = output0Value & TRAFFIC_LIGHT_2_G_MASK
+            //turn the green light on with ANDing the required bit inverted mask
+            if (green == 0x00ff00){
+                maskedValue = output0Value & (0xFF - TRAFFIC_LIGHT_2_G_MASK)
+                output0Value = maskedValue
             }
-            //turn the green light off with XOR the require bit
+            //turn the green light off with XNOR the require bit
             else if (green == 0x0f4604) {
-                value = output0Value ^ TRAFFIC_LIGHT_2_G_MASK
+                maskedValue = output0Value | TRAFFIC_LIGHT_2_G_MASK
+                output0Value = maskedValue
             }
         }
-        writeOutputPortSingleByte(OUTPUT_0_REG, value)
-        //buf[0] = OUTPUT_0_REG
-        //buf[1] = value
-        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
+        writeOutputPortSingleByte(OUTPUT_0_REG, maskedValue)
     }
 
 	/**
@@ -535,18 +544,15 @@ namespace kitronik_labbit {
         let buf = pins.createBuffer(2)
         let value = 0
         readOutputPort()
-        //buf[0] = OUTPUT_0_REG
+
         if (selectedLight == TrafficLight.one){
-            //buf[1] = output0Value & 0xF8
-            value = output0Value & 0xF8
+            value = output0Value | 0x07
         }
         else if (selectedLight == TrafficLight.two){
-            //buf[1] = output0Value & 0xC3
-            value = output0Value & 0xC3
+            value = output0Value | 0x38
         }
 
         writeOutputPortSingleByte(OUTPUT_0_REG, value)
-        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 	/**
