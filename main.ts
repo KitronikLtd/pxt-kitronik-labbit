@@ -155,6 +155,7 @@ namespace kitronik_labbit {
     let IO_CONFIG_1 = 0x07
     let ioInitialised = false
     
+    //masks for 
     let TRAFFIC_LIGHT_1_R_MASK = 0x01
     let TRAFFIC_LIGHT_1_Y_MASK = 0x02
     let TRAFFIC_LIGHT_1_G_MASK = 0x04
@@ -223,6 +224,7 @@ namespace kitronik_labbit {
         pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
         basic.pause(1)
 
+        //to determine between V1 and V2 micro:bit
         let sizeOfRam = control.ramSize()
         if (sizeOfRam >= 100000)
         {
@@ -234,6 +236,8 @@ namespace kitronik_labbit {
             cmEquationDivider = ULTRASONIC_V1_DIV_CM
             inEquationDivider = ULTRASONIC_V1_DIV_IN
         }
+
+        //set microphone pin to P1 on the LAB:bit
         kitronik_microphone.setMicrophonePin("P1")
         ioInitialised = true //we have setup, so dont come in here again.
     }
@@ -1252,9 +1256,6 @@ namespace kitronik_labbit {
             value = (output0Value && 0x0F) + bitMask
         }
         writeOutputPortSingleByte(OUTPUT_0_REG, value)
-        //writeBuf[0] = OUTPUT_0_REG
-        //writeBuf[1] = value
-        //pins.i2cWriteBuffer(CHIP_ADDR, writeBuf, false)
     }
 
 
@@ -1360,10 +1361,6 @@ namespace kitronik_labbit {
                 break
             }
         writeOutputPortDoubleByte(port0Value, port1Value)
-        //buf[0] = OUTPUT_0_REG
-        //buf[1] = port0Value
-        //buf[2] = port1Value
-        //pins.i2cWriteBuffer(CHIP_ADDR, buf, false)
     }
 
 
