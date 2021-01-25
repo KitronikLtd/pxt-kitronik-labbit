@@ -301,6 +301,7 @@ namespace kitronik_labbit {
     //% group="Analog"
     //% blockId=kitronik_labbit_analog_scaled_input
     //% block="read analog input value"
+    //% color=#3535fb
     //% weight=100 blockGap=8
     export function readScaledAnalogInput(): number {
         return pins.map(pins.analogReadPin(AnalogPin.P2), 0, 1023, 0, 100)
@@ -318,6 +319,7 @@ namespace kitronik_labbit {
     //% group="Ultrasonic"
     //% blockId=kitronik_labbit_ultrasonic_units
     //% block="measure distances in %unit"
+    //% color=#3535fb
     //% weight=75 blockGap=8
     export function setUltrasonicUnits(unit: Units): void {
         unitSelected = unit
@@ -331,6 +333,7 @@ namespace kitronik_labbit {
     //% group="Ultrasonic"
     //% blockId=kitronik_labbit_ultrasonic_measure
     //% block="measure distance"
+    //% color=#3535fb
     //% weight=70 blockGap=8
     export function measure(maxCmDistance = 500): number {
         // send pulse
@@ -1091,62 +1094,30 @@ namespace kitronik_labbit {
     //% blockId=kitronik_labbit_motor_on
     //% block="turn motor |%dir|at speed %speed"
     //% weight=100 blockGap=8
+    //%color=#D2D204
     //% speed.min=0 speed.max=100
     export function motorOn(newMotorDir: MotorDirection, speed: number): void {
-        let OutputVal = 0
-
+        //let OutputVal = 0
 
         /*first convert 0-100 to 0-1024 (approx) We wont worry about the lsat 24 to make life simpler*/
-        //let OutputVal = Math.clamp(0, 100, speed) * 10;
-        //
-        //switch (dir) {
-        //    case MotorDirection.CW:
-        //        pins.analogWritePin(AnalogPin.P16, OutputVal);
-        //        pins.digitalWritePin(DigitalPin.P12, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
-        //        break
-        //    case MotorDirection.CCW:
-        //        pins.analogWritePin(AnalogPin.P12, OutputVal);
-        //        pins.digitalWritePin(DigitalPin.P16, 0);
-        //        break
-        //}
+        let OutputVal = Math.clamp(0, 100, speed) * 10;
+        
+        switch (newMotorDir) {
+            case MotorDirection.CW:
+                pins.analogWritePin(AnalogPin.P16, OutputVal);
+                basic.pause(100)
+                pins.digitalWritePin(DigitalPin.P12, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
+                break
+            case MotorDirection.CCW:
+                pins.analogWritePin(AnalogPin.P12, OutputVal);
+                basic.pause(100)
+                pins.digitalWritePin(DigitalPin.P16, 0);
+                break
+        }
 
         //code checks for change in direction in order to stop the motor and ramp up the speed to selected speed 
         //this is to damper the current pull on the motor driver chip and not to reset the uBit
-        if (previousMotorDir != newMotorDir)
-        {
-            for (let rampSpeed=0; rampSpeed<=speed; rampSpeed++)
-            {
-                OutputVal = Math.clamp(0, 100, rampSpeed) * 10;
-                switch (newMotorDir) {
-                    case MotorDirection.CW:
-                        pins.analogWritePin(AnalogPin.P16, OutputVal);
-                        pins.digitalWritePin(DigitalPin.P12, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
-                        break
-                    case MotorDirection.CCW:
-                        pins.analogWritePin(AnalogPin.P12, OutputVal);
-                        pins.digitalWritePin(DigitalPin.P16, 0);
-                        break
-                }
-                basic.pause(1)
-            }
-            previousMotorDir = newMotorDir
-        }
-        else
-        {
-            //if no change in speed, then the motor pins driven as normal
-            OutputVal = Math.clamp(0, 100, speed) * 10;            
-            switch (newMotorDir) {
-                case MotorDirection.CW:
-                    pins.analogWritePin(AnalogPin.P16, OutputVal);
-                    pins.digitalWritePin(DigitalPin.P12, 0); /*Write the low side digitally, to allow the 3rd PWM to be used if required elsewhere*/
-                    break
-                case MotorDirection.CCW:
-                    pins.analogWritePin(AnalogPin.P12, OutputVal);
-                    pins.digitalWritePin(DigitalPin.P16, 0);
-                    break
-            }
-        }
-
+        
     }
 
     
@@ -1156,6 +1127,7 @@ namespace kitronik_labbit {
     //% subcategory="Motor"
     //% blockId=kitronik_labbit_motor_off
     //%block="stop motor"
+    //%color=#D2D204
     //% weight=99 blockGap=8
     export function motorOff(): void {
         pins.digitalWritePin(DigitalPin.P12, 0);
