@@ -243,7 +243,7 @@ namespace kitronik_labbit {
 
         //set microphone pin to P1 on the LAB:bit
         kitronik_microphone.setMicrophonePin("P1")
-        ioInitialised = true //we have setup, so dont come in here again.
+        initialised = true //we have setup, so dont come in here again.
     }
 
     //generic global function to read the current values of the IO ports
@@ -251,7 +251,7 @@ namespace kitronik_labbit {
         let writeBuf = pins.createBuffer(1)
         let readBuf = pins.createBuffer(2)
         
-        if (ioInitialised == false) {
+        if (initialised == false) {
             setup()
         }
         
@@ -267,7 +267,7 @@ namespace kitronik_labbit {
     export function writeOutputPortSingleByte(regAddr: number, regValue: number): void {
         let writeBuf = pins.createBuffer(2)
 
-        if (ioInitialised == false) {
+        if (initialised == false) {
             setup()
         } 
         writeBuf[0] = regAddr
@@ -280,7 +280,7 @@ namespace kitronik_labbit {
     function writeOutputPortDoubleByte(regValue0: number, regValue1: number): void {
         let writeBuf = pins.createBuffer(3)
         
-        if (ioInitialised == false) {
+        if (initialised == false) {
             setup()
         }  
         writeBuf[0] = OUTPUT_0_REG
@@ -367,7 +367,7 @@ namespace kitronik_labbit {
     //% block="measure sound volume"
     //% weight=95 blockGap=8
     export function readScaledSoundLevel() {
-        if (ioInitialised == false) {
+        if (initialised == false) {
             kitronik_microphone.init()
             setup()
         }
@@ -383,7 +383,7 @@ namespace kitronik_labbit {
     //% block="measure averaged sound volume"
     //% weight=95 blockGap=8
     export function readScaledAverageSoundLevel() {
-        if (ioInitialised == false) {
+        if (initialised == false) {
             kitronik_microphone.init()
             setup()
         }
@@ -586,7 +586,7 @@ namespace kitronik_labbit {
         let buf = pins.createBuffer(2)
         let value = 0
         
-        if (ioInitialised == false) {
+        if (initialised == false) {
             setup()
         }
         
