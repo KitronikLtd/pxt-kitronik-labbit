@@ -336,24 +336,28 @@ namespace kitronik_labbit {
     //% color=#3535fb
     //% weight=70 blockGap=8
     export function measure(maxCmDistance = 500): number {
-        // send pulse
-        pins.setPull(triggerPin, PinPullMode.PullNone);
-        pins.digitalWritePin(triggerPin, 0);
-        control.waitMicros(2);
-        pins.digitalWritePin(triggerPin, 1);
-        control.waitMicros(10);
-        pins.digitalWritePin(triggerPin, 0);
+        let measure = 0
+        while(measure == 0) {
+            // send pulse
+            pins.setPull(triggerPin, PinPullMode.PullNone);
+            pins.digitalWritePin(triggerPin, 0);
+            control.waitMicros(2);
+            pins.digitalWritePin(triggerPin, 1);
+            control.waitMicros(10);
+            pins.digitalWritePin(triggerPin, 0);
 
-        // read pulse
-        const pulse = pins.pulseIn(echoPin, PulseValue.High, maxCmDistance * 39);
-        //From the HC-SR04 datasheet the formula for calculating distance is "microSecs of pulse"/58 for cm or "microSecs of pulse"/148 for inches.
-        //When measured actual distance compared to calculated distanceis not the same.  There must be an timing measurement with the pulse.
-        //values have been changed to match the correct measured distances so 58 changed to 39 and 148 changed to 98
-        switch (unitSelected) {
-            case Units.Centimeters: return Math.idiv(pulse, cmEquationDivider);
-            case Units.Inches: return Math.idiv(pulse, inEquationDivider);
-            default: return 0;
+            // read pulse
+            const pulse = pins.pulseIn(echoPin, PulseValue.High, maxCmDistance * 39);
+            //From the HC-SR04 datasheet the formula for calculating distance is "microSecs of pulse"/58 for cm or "microSecs of pulse"/148 for inches.
+            //When measured actual distance compared to calculated distanceis not the same.  There must be an timing measurement with the pulse.
+            //values have been changed to match the correct measured distances so 58 changed to 39 and 148 changed to 98
+            switch (unitSelected) {
+                case Units.Centimeters: measure = Math.idiv(pulse, cmEquationDivider); break;
+                case Units.Inches: measure = Math.idiv(pulse, inEquationDivider); break;
+                //default: return 0;
+            }
         }
+        return measure;
     }
 
 
@@ -776,6 +780,45 @@ namespace kitronik_labbit {
             }
             this.show();
         }
+
+/**
+         * Displays a vertical bar graph based on the `value` and `high` value.
+         * If `high` is 0, the chart gets adjusted automatically.
+         * @param value current value to plot
+         * @param high maximum value, eg: 100
+         */
+        //% subcategory="Colour Lights"
+        //% weight=84 blockGap=8
+        //% blockId=kitronik_labbit_show_bar_graph block="%prettyLights|show bar graph of %value|up to %high" 
+        showBarGraph(value: number, high: number): void {
+            if (high <= 0) {
+                this.clear();
+                this.setZipLedColor(0, 0xFFFF00);
+                this.show();
+                return;
+            }
+
+            value = Math.abs(value);
+            const n = this._length;
+            const n1 = n - 1;
+            let v = Math.idiv((value * n), high);
+            if (v == 0) {
+                this.setZipLedColor(0, 0x666600);
+                for (let i = 1; i < n; ++i)
+                    this.setZipLedColor(i, 0);
+            } else {
+                for (let i = 0; i < n; ++i) {
+                    if (i <= v) {
+                        const g = Math.idiv(i * 255, n1);
+                        //this.setZipLedColor(i, haloDisplay.rgb(0, g, 255 - g));
+						this.setZipLedColor(i, rgb(g, 255 - g, 0));
+                    }
+                    else this.setZipLedColor(i, 0);
+                }
+            }
+            this.show();
+        }
+
 
         /**
          * Rotate LEDs forward.
